@@ -1,39 +1,46 @@
 import React from 'react';
 import {
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+  useNavigation,
+} from '@react-navigation/native';
+import type {
+  NativeStackNavigationProp,
+} from '@react-navigation/native-stack';
+import QRScanner from '../../organisms/QRScanner';
+import type {
+  RootStackParamList,
+} from '../../../routes/AppNavigator';
+
+
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
+
 
 const ScanMenu = () => {
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Scan</Text>
 
-      <Text style={styles.subtitle}>
-        Halaman Scanner
-      </Text>
-    </View>
+  const navigation =
+    useNavigation<NavigationProp>();
+  const handleScanned = (data: string,) => {
+
+    console.log(
+      'QR DATA:',
+      data,
+    );
+
+    navigation.navigate('Menu');
+  };
+
+
+  const handleClose = () => {
+    navigation.goBack();
+  };
+
+
+  return (
+    <QRScanner
+      onClose={handleClose}
+      onScanned={handleScanned}
+    />
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-
-  title: {
-    fontSize: 28,
-    fontWeight: '700',
-  },
-
-  subtitle: {
-    marginTop: 8,
-    fontSize: 16,
-  },
-});
 
 export default ScanMenu;

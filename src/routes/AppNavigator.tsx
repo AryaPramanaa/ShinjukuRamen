@@ -1,46 +1,43 @@
 import React from 'react';
 
-import {
-  createBottomTabNavigator,
-} from '@react-navigation/bottom-tabs';
+import { createNativeStackNavigator} from '@react-navigation/native-stack';
 
-import Dashboard from '../components/pages/Dashboard';
-import Order from '../components/pages/orders/OrderScreen';
-import Scan from '../components/pages/menu/ScanMenu';
-import BottomNavigation from '../components/organisms/BottomNavigation';
+import MainTabNavigator from './MainTabNavigation';
+
+import MenuScreen from '../components/pages/menu/MenuScreen';
 
 export type RootTabParamList = {
-  Order: undefined;
-  Scan: undefined;
   Dashboard: undefined;
+  Scan: undefined;
+  Order: undefined;
 };
 
-const Tab = createBottomTabNavigator<RootTabParamList>();
+export type RootStackParamList = {
+  MainTabs: undefined;
+  Menu: undefined;
+};
+
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const AppNavigator = () => {
   return (
-    <Tab.Navigator
-      initialRouteName="Dashboard"
+    <Stack.Navigator
+      initialRouteName="MainTabs"
       screenOptions={{
         headerShown: false,
       }}
-      tabBar={(props) => (
-        <BottomNavigation {...props} />
-      )}
     >
-      <Tab.Screen
-        name="Dashboard"
-        component={Dashboard}
+      <Stack.Screen
+        name="MainTabs"
+        component={MainTabNavigator}
       />
-      <Tab.Screen
-        name="Scan"
-        component={Scan}
+
+      <Stack.Screen
+        name="Menu"
+        component={MenuScreen}
       />
-      <Tab.Screen
-        name="Order"
-        component={Order}
-      />
-    </Tab.Navigator>
+
+    </Stack.Navigator>
   );
 };
 

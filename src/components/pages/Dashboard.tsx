@@ -8,7 +8,7 @@ import {
 const Dashboard = () => {
     return (
         <View style = {styles.container}>
-            <Text style ={styles.title}>Dashbaord</Text>
+            <Text style ={styles.title}>Dashboard</Text>
             <Text style = {styles.subtitle} >Selamat datang di dashboard</Text>
         </View>
     );
