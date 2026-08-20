@@ -12,8 +12,6 @@ import type {
 
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
-
-
 const ScanMenu = () => {
 
   const navigation =

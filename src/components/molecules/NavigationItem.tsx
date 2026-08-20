@@ -1,13 +1,10 @@
 import React from 'react';
-
 import {
   Pressable,
   StyleSheet,
   Text,
 } from 'react-native';
-
 import Ionicons from '@expo/vector-icons/Ionicons';
-
 import Icons from '../atoms/Icons';
 
 type IconName =
@@ -56,17 +53,14 @@ const NavigationItem = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-
     alignItems: 'center',
     justifyContent: 'center',
   },
 
   label: {
     marginTop: 4,
-
     fontSize: 12,
     fontWeight: '500',
-
     color: '#9CA3AF',
   },
 

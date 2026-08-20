@@ -334,18 +334,14 @@ const styles = StyleSheet.create({
 
     permissionButton: {
         marginTop: 24,
-
         paddingHorizontal: 24,
         paddingVertical: 12,
-
         borderRadius: 8,
-
         backgroundColor: '#2563EB',
     },
 
     permissionButtonText: {
         color: '#FFFFFF',
-
         fontSize: 14,
         fontWeight: '600',
     },

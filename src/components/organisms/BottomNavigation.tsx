@@ -1,14 +1,11 @@
 import React from 'react';
-
 import {
   StyleSheet,
   View,
 } from 'react-native';
-
 import {
   BottomTabBarProps,
 } from '@react-navigation/bottom-tabs';
-
 import NavigationItem from '../molecules/NavigationItem';
 import ScanNavigationItem from '../molecules/ScanNavigationItem';
 
@@ -20,16 +17,9 @@ const BottomNavigation = ({
 
   return (
     <View style={styles.container}>
-
       {state.routes.map((route, index) => {
-
-        const isFocused =
-          state.index === index;
-
-        const label =
-          descriptors[route.key].options.title ??
-          route.name;
-
+        const isFocused = state.index === index;
+        const label = descriptors[route.key].options.title ?? route.name;
         const handlePress = () => {
           const event = navigation.emit({
             type: 'tabPress',
@@ -38,8 +28,7 @@ const BottomNavigation = ({
           });
 
           if (
-            !isFocused &&
-            !event.defaultPrevented
+            !isFocused && !event.defaultPrevented
           ) {
             navigation.navigate(route.name);
           }
@@ -91,20 +80,15 @@ const BottomNavigation = ({
 const styles = StyleSheet.create({
   container: {
     height: 70,
-
     flexDirection: 'row',
-
     backgroundColor: '#FFFFFF',
-
     borderTopWidth: 1,
     borderTopColor: '#E5E7EB',
-
     paddingHorizontal: 16,
   },
 
   scanWrapper: {
     flex: 1,
-
     alignItems: 'center',
     justifyContent: 'center',
   },
