@@ -6,60 +6,72 @@ import {
 } from 'react-native';
 import MenuItem from './MenuItem';
 
-interface MenuItemData {
-  id: number;
-  name: string;
-  price: number;
-  image: string;
-}
-
 interface MenuListProps {
   title: string;
-  subtitle?: string | null;
-  menus: MenuItemData[];
+  subtitle: string | null;
+  menus: any[];
+
+  onAddItem: (item: any) => void;
+  onIncrease: (id: number) => void;
+  onDecrease: (id: number) => void;
+  getQuantity: (id: number) => number;
 }
 
 const MenuList = ({
   title,
   subtitle,
   menus,
+  onAddItem,
+  onIncrease,
+  onDecrease,
+  getQuantity,
 }: MenuListProps) => {
   return (
-    <View>
-      <Text style={styles.sectionTitle}>
+    <View style={styles.container}>
+
+      <Text style={styles.title}>
         {title}
       </Text>
 
       {subtitle && (
-        <Text style={styles.sectionSubtitle}>
+        <Text style={styles.subtitle}>
           {subtitle}
         </Text>
       )}
 
-      {menus.map(item => (
-        <MenuItem
-          key={item.id}
-          image={item.image}
-          name={item.name}
-          price={item.price}
-          onAdd={() => {
-            console.log('Add:', item.name);
-          }}
-        />
-      ))}
+      {menus.map(item => {
+        const quantity = getQuantity(item.id);
+
+        return (
+          <MenuItem
+            key={item.id}
+            image={item.image}
+            name={item.name}
+            price={item.price}
+            quantity={quantity}
+            onAdd={() => onAddItem(item)}
+            onIncrease={() => onIncrease(item.id)}
+            onDecrease={() => onDecrease(item.id)}
+          />
+        );
+      })}
+
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  sectionTitle: {
+  container: {
     marginTop: 25,
+  },
+
+  title: {
     marginHorizontal: 30,
     fontSize: 17,
     color: '#B6A09A',
   },
 
-  sectionSubtitle: {
+  subtitle: {
     marginTop: 5,
     marginHorizontal: 30,
     marginBottom: 15,

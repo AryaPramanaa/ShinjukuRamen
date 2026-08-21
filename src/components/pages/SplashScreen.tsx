@@ -19,7 +19,7 @@ const SplashScreen = ({navigation}: any) => {
         <View style={styles.container}>
 
             <Image
-                source={require('../../Assets/ramen.png')}
+                source={require('../../Assets/ramen-Photoroom.png')}
                 style={styles.logo}
                 resizeMode="contain"
             />

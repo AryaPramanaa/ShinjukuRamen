@@ -1,7 +1,5 @@
 import React from 'react';
-
 import Ionicons from '@expo/vector-icons/Ionicons';
-
 type IconName = React.ComponentProps<typeof Ionicons>['name'];
 
 interface IconsProps {

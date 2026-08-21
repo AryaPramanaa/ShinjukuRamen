@@ -10,6 +10,10 @@ import CategoryModal from '../organisms/CategoryModal';
 import MenuList from '../organisms/MenuList';
 import RestaurantInfo from '../molecules/RestaurantInfo';
 import TableInfo from '../molecules/TableInfo';
+import CartBar from '../molecules/CartBar';
+import CartModal from '../organisms/CartModal';
+import EditMenuModal from '../organisms/EditMenuModal';
+import AddMenuModal from '../organisms/AddMenuModal';
 
 interface MenuTemplateProps {
     isSearch: boolean;
@@ -19,18 +23,59 @@ interface MenuTemplateProps {
     ramenCategories: string[];
     menus: any[];
     isCategoryModal: boolean;
+    cart: any[];
+    totalQuantity: number;
+    totalPrice: number;
+    isCartModal: boolean;
+    selectedCartItem: any | null;
+    isEditModal: boolean;
+    isAddMenuModal: boolean;
+    selectedMenu: any | null;
+
 
     onSearch: () => void;
     onCloseSearch: () => void;
     onChangeSearch: (text: string) => void;
     onClearSearch: () => void;
     onOpenCategory: () => void;
-    onSelectRamenCategory: (category: string,) => void;
+    onSelectRamenCategory: (
+        category: string,
+    ) => void;
     onCloseCategoryModal: () => void;
-    onSelectCategory: (category: string,) => void;
+    onSelectCategory: (
+        category: string,
+    ) => void;
+    onAddItem: (item: any) => void;
+    onIncrease: (id: number) => void;
+    onDecrease: (id: number) => void;
+    getQuantity: (id: number) => number;
+    onOpenCart: () => void;
+    onCloseCart: () => void;
+    onEditItem: (item: any) => void;
+    onUpdateNote: (
+        id: number,
+        note: string,
+    ) => void;
+    onCloseEdit: () => void;
+    onCloseAddMenu: () => void;
+    onAddFromModal: (
+        item: any,
+        quantity: number,
+        selectedOptions: {
+            noodles: number[];
+            broth: number[];
+            toppings: number[];
+        },
+        additionalPrice: number,
+        note: string,
+    ) => void;
+    onConfirmAddMenu: (item: any) => void;
 }
 
 const MenuTemplate = ({
+    isCartModal,
+    isEditModal,
+    selectedCartItem,
     isSearch,
     searchText,
     activeCategory,
@@ -38,6 +83,12 @@ const MenuTemplate = ({
     ramenCategories,
     menus,
     isCategoryModal,
+    cart,
+    totalQuantity,
+    totalPrice,
+    isAddMenuModal,
+    selectedMenu,
+
 
     onSearch,
     onCloseSearch,
@@ -47,9 +98,23 @@ const MenuTemplate = ({
     onSelectRamenCategory,
     onCloseCategoryModal,
     onSelectCategory,
+    onIncrease,
+    onDecrease,
+    getQuantity,
+    onOpenCart,
+    onCloseCart,
+    onEditItem,
+    onCloseEdit,
+    onUpdateNote,
+    onCloseAddMenu,
+    onAddFromModal,
+    onAddItem,
+
 }: MenuTemplateProps) => {
+
     return (
         <View style={styles.container}>
+
 
             <MenuHeader
                 isSearch={isSearch}
@@ -60,6 +125,7 @@ const MenuTemplate = ({
                 onClearSearch={onClearSearch}
             />
 
+
             <View style={styles.content}>
 
                 <ScrollView
@@ -68,9 +134,9 @@ const MenuTemplate = ({
                 >
 
                     <RestaurantInfo />
-
-                    <TableInfo tableNumber="A2" />
-
+                    <TableInfo
+                        tableNumber="A2"
+                    />
                     <CategoryNavigation
                         activeCategory={activeCategory}
                         activeRamenCategory={activeRamenCategory}
@@ -87,16 +153,29 @@ const MenuTemplate = ({
                                 ? 'Drinks'
                                 : activeCategory
                         }
+
                         subtitle={
                             activeCategory === 'Ramen'
                                 ? activeRamenCategory
                                 : null
                         }
+
                         menus={menus}
+                        onAddItem={onAddItem}
+                        onIncrease={onIncrease}
+                        onDecrease={onDecrease}
+                        getQuantity={getQuantity}
+
                     />
 
                 </ScrollView>
 
+                <AddMenuModal
+                    visible={isAddMenuModal}
+                    item={selectedMenu}
+                    onClose={onCloseAddMenu}
+                    onAdd={onAddFromModal}
+                />
             </View>
 
             {isSearch && (
@@ -113,6 +192,38 @@ const MenuTemplate = ({
                 onSelectCategory={onSelectCategory}
             />
 
+            {!isCartModal && !isAddMenuModal &&(
+                <CartBar
+                    totalQuantity={totalQuantity}
+                    totalPrice={totalPrice}
+                    onCartPress={onOpenCart}
+                    onCheckout={() => {
+                        console.log('Checkout');
+                    }}
+                />
+            )}
+
+            <CartModal
+                visible={isCartModal}
+                cart={cart}
+                totalPrice={totalPrice}
+                onClose={onCloseCart}
+                onEditItem={onEditItem}
+                onIncrease={onIncrease}
+                onDecrease={onDecrease}
+                onCheckout={() => {
+                    console.log('Checkout');
+                }}
+            />
+
+            <EditMenuModal
+                visible={isEditModal}
+                item={selectedCartItem}
+                onClose={onCloseEdit}
+                onIncrease={onIncrease}
+                onDecrease={onDecrease}
+                onUpdateNote={onUpdateNote}
+            />
         </View>
     );
 };
@@ -133,7 +244,7 @@ const styles = StyleSheet.create({
     },
 
     scrollContent: {
-        paddingBottom: 30,
+        paddingBottom: 100,
     },
 
     searchOverlay: {

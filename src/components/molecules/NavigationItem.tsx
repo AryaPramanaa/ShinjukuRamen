@@ -33,7 +33,7 @@ const NavigationItem = ({
         size={24}
         color={
           active
-            ? '#2563EB'
+            ? '#B91C1C'
             : '#9CA3AF'
         }
       />
@@ -65,7 +65,7 @@ const styles = StyleSheet.create({
   },
 
   activeLabel: {
-    color: '#2563EB',
+    color: '#B91C1C',
   },
 });
 

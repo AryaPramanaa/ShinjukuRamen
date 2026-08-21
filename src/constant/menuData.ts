@@ -18,30 +18,101 @@ export const ramenMenus = {
   Tonkotsu: [
     {
       id: 1,
-      name: 'Special Tonkotsu Ramen',
+      name: 'Special Shinjuku Ramen',
       price: 30,
-      image:
-        'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=500',
+      image: 'https://example.com/ramen1.jpg',
     },
+
     {
       id: 2,
-      name: 'Classic Tonkotsu Ramen',
+      name: 'Shinjuku Ramen',
       price: 28,
-      image:
-        'https://images.unsplash.com/photo-1617093727343-374698b1b08d?w=500',
+      image: 'https://example.com/ramen2.jpg',
+    },
+
+    {
+      id: 3,
+      name: 'Spicy Tonkotsu Ramen',
+      price: 30,
+      image: 'https://example.com/ramen3.jpg',
+
+      noodles: [
+        {
+          id: 1,
+          name: 'Regular Noodles',
+          price: 0,
+        },
+        {
+          id: 2,
+          name: 'Firm Noodles',
+          price: 0,
+        },
+        {
+          id: 3,
+          name: 'Soft Noodles',
+          price: 0,
+        },
+      ],
+
+      broth: [
+        {
+          id: 1,
+          name: 'Normal',
+          price: 0,
+        },
+        {
+          id: 2,
+          name: 'Rich',
+          price: 0,
+        },
+        {
+          id: 3,
+          name: 'Extra Rich',
+          price: 2,
+        },
+      ],
+
+      toppings: [
+        {
+          id: 1,
+          name: 'None',
+          price: 0,
+        },
+        {
+          id: 2,
+          name: 'Nori',
+          price: 0,
+        },
+        {
+          id: 3,
+          name: 'Corn',
+          price: 2,
+        },
+        {
+          id: 4,
+          name: 'Menma (Bamboo Shoot)',
+          price: 0,
+        },
+        {
+          id: 5,
+          name: 'Spring Onion',
+          price: 0,
+        },
+      ],
     },
   ],
 
   Shoyu: [
     {
-      id: 3,
+      id: 4,
       name: 'Special Shoyu Ramen',
       price: 30,
       image:
         'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=500',
     },
+
     {
-      id: 4,
+      id: 5,
       name: 'Classic Shoyu Ramen',
       price: 26,
       image:
@@ -51,7 +122,7 @@ export const ramenMenus = {
 
   Miso: [
     {
-      id: 5,
+      id: 6,
       name: 'Special Miso Ramen',
       price: 29,
       image:
@@ -61,7 +132,7 @@ export const ramenMenus = {
 
   AA: [
     {
-      id: 6,
+      id: 7,
       name: 'AA Ramen',
       price: 32,
       image:
@@ -71,7 +142,7 @@ export const ramenMenus = {
 
   BB: [
     {
-      id: 7,
+      id: 8,
       name: 'BB Ramen',
       price: 33,
       image:
@@ -81,7 +152,7 @@ export const ramenMenus = {
 
   CC: [
     {
-      id: 8,
+      id: 9,
       name: 'CC Ramen',
       price: 35,
       image:
@@ -98,6 +169,7 @@ export const sidesMenu = [
     image:
       'https://images.unsplash.com/photo-1496116218417-1a781b1c416c?w=500',
   },
+
   {
     id: 102,
     name: 'Karaage',
@@ -115,6 +187,7 @@ export const drinkMenu = [
     image:
       'https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=500',
   },
+
   {
     id: 202,
     name: 'Ramune',
