@@ -6,6 +6,7 @@ import {
   Text,
   View,
 } from 'react-native';
+import QuantitySelector from './QuantitySelector';
 
 interface CartItemProps {
   item: {
@@ -64,36 +65,19 @@ const CartItem = ({
         </View>
 
         <View style={styles.bottomRow}>
+
           <Text style={styles.price}>
             $ {item.price.toFixed(2)}
           </Text>
 
-          <View style={styles.quantityContainer}>
+          <QuantitySelector
+            quantity={item.quantity}
+            onIncrease={onIncrease}
+            onDecrease={onDecrease}
+          />
 
-            <Pressable
-              style={styles.quantityButton}
-              onPress={onDecrease}
-            >
-              <Text style={styles.quantityButtonText}>
-                −
-              </Text>
-            </Pressable>
-
-            <Text style={styles.quantity}>
-              {item.quantity}
-            </Text>
-
-            <Pressable
-              style={styles.quantityButton}
-              onPress={onIncrease}
-            >
-              <Text style={styles.quantityButtonText}>
-                +
-              </Text>
-            </Pressable>
-
-          </View>
         </View>
+
       </View>
     </View>
   );
@@ -168,33 +152,6 @@ const styles = StyleSheet.create({
   price: {
     fontSize: 13,
     color: '#333',
-  },
-
-  quantityContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-
-  quantityButton: {
-    width: 28,
-    height: 28,
-    borderWidth: 1,
-    borderColor: '#F0B4B4',
-    borderRadius: 6,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-
-  quantityButtonText: {
-    fontSize: 18,
-    color: '#B91C1C',
-  },
-
-  quantity: {
-    width: 35,
-    textAlign: 'center',
-    fontSize: 14,
-    color: '#222',
   },
 });
 

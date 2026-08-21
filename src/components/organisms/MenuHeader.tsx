@@ -5,7 +5,7 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
-import Icons from '../atoms/Icons';
+import Icon from '../atoms/Icon';
 import SearchBar from '../molecules/SearchBar';
 
 interface MenuHeaderProps {
@@ -37,7 +37,7 @@ const MenuHeader = ({
         {!isSearch ? (
           <>
             <Pressable style={styles.headerButton}>
-              <Icons
+              <Icon
                 name="menu-outline"
                 size={28}
                 color="#FFFFFF"
@@ -48,7 +48,7 @@ const MenuHeader = ({
               style={styles.headerButton}
               onPress={onSearch}
             >
-              <Icons
+              <Icon
                 name="search-outline"
                 size={28}
                 color="#FFFFFF"
@@ -61,7 +61,7 @@ const MenuHeader = ({
               style={styles.searchBackButton}
               onPress={onCloseSearch}
             >
-              <Icons
+              <Icon
                 name="arrow-back"
                 size={30}
                 color="#FFFFFF"

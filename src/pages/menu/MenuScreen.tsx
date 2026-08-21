@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
-import MenuTemplate from '../../templates/MenuTemplate';
-import OrderSummary from '../../organisms/OrderSummary';
-import RedeemPayment from '../../organisms/RedeemPayment';
+import MenuTemplate from '../../components/templates/MenuTemplate';
+import OrderSummary from '../../components/organisms/OrderSummary';
+import Redeem from '../../components/organisms/Redeem';
+import MembershipTiers from '../../components/organisms/MembershipTiers';
 import {
   ramenCategories,
   ramenMenus,
   sidesMenu,
   drinkMenu,
   promoMenu,
-} from '../../../constant/menuData';
+} from '../../constants/menuData';
 
 interface CartItem {
   id: number;
@@ -34,6 +35,8 @@ const MenuScreen = () => {
   const [selectedMenu, setSelectedMenu] = useState<any | null>(null);
   const [isOrderSummary, setIsOrderSummary] = useState(false);
   const [isRedeemPayment, setIsRedeemPayment] = useState(false);
+  const [isMembershipTiers, setIsMembershipTiers] = useState(false);
+
   const getMenus = () => {
     if (activeCategory === 'Ramen') {
       if (activeRamenCategory === null) {
@@ -227,7 +230,6 @@ const MenuScreen = () => {
   };
 
   const handleAddItem = (item: any) => {
-
     const hasOptions =
       item.noodles ||
       item.broth ||
@@ -240,7 +242,6 @@ const MenuScreen = () => {
     }
 
     setCart(prevCart => {
-
       const existingItem = prevCart.find(
         cartItem => cartItem.id === item.id,
       );
@@ -312,9 +313,17 @@ const MenuScreen = () => {
       total + item.price * item.quantity, 0,
   );
 
+  if (isMembershipTiers) {
+    return (
+      <MembershipTiers
+        onBack={() => setIsMembershipTiers(false)}
+      />
+    );
+  }
+
   if (isRedeemPayment) {
     return (
-      <RedeemPayment
+      <Redeem
         totalPrice={totalPrice}
         onBack={() => setIsRedeemPayment(false)}
         onPay={(paymentMethod, provider) => {
@@ -324,6 +333,7 @@ const MenuScreen = () => {
           setIsRedeemPayment(false);
           setIsOrderSummary(false);
         }}
+        onViewTier={() => setIsMembershipTiers(true)}
       />
     );
   }
@@ -366,37 +376,27 @@ const MenuScreen = () => {
       onSearch={handleOpenSearch}
       onCloseSearch={handleCloseSearch}
       onChangeSearch={setSearchText}
-      onConfirmAddMenu={handleConfirmAddMenu}
       onCheckout={handleCheckout}
       onClearSearch={() => {
         setSearchText('');
       }}
-
       onOpenCategory={() => {
         setIsCategoryModal(true);
       }}
-
-      onSelectRamenCategory={
-        setActiveRamenCategory
-      }
-
-      onCloseCategoryModal={() => {
+      onCloseCategory={() => {
         setIsCategoryModal(false);
       }}
-
-      onSelectCategory={
-        handleSelectCategory
-      }
-
+      onSelectCategory={handleSelectCategory}
+      onSelectRamenCategory={setActiveRamenCategory}
+      onOpenCart={handleOpenCart}
+      onCloseCart={handleCloseCart}
       onAddItem={handleAddItem}
       onIncrease={handleIncrease}
       onDecrease={handleDecrease}
-      getQuantity={getQuantity}
-      onOpenCart={handleOpenCart}
-      onCloseCart={handleCloseCart}
       onEditItem={handleEditItem}
       onCloseEdit={handleCloseEdit}
       onUpdateNote={handleUpdateNote}
+      getQuantity={getQuantity}
     />
   );
 };

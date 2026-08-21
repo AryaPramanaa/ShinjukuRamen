@@ -5,32 +5,27 @@ import {
 import type {
   NativeStackNavigationProp,
 } from '@react-navigation/native-stack';
-import QRScanner from '../../organisms/QRScanner';
+import QRScanner from '../../components/organisms/QRScanner';
 import type {
   RootStackParamList,
-} from '../../../navigation/AppNavigator';
-
+} from '../../navigation/AppNavigator';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
-const ScanMenu = () => {
 
+const ScanMenuScreen = () => {
   const navigation =
     useNavigation<NavigationProp>();
   const handleScanned = (data: string,) => {
-
     console.log(
       'QR DATA:',
       data,
     );
-
     navigation.navigate('Menu');
   };
-
 
   const handleClose = () => {
     navigation.goBack();
   };
-
 
   return (
     <QRScanner
@@ -40,5 +35,4 @@ const ScanMenu = () => {
   );
 };
 
-
-export default ScanMenu;
+export default ScanMenuScreen;

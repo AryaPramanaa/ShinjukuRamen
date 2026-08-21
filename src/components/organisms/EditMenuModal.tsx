@@ -7,6 +7,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import QuantitySelector from '../molecules/QuantitySelector';
 
 interface EditMenuModalProps {
   visible: boolean;
@@ -99,35 +100,11 @@ const EditMenuModal = ({
                 $ {item.price.toFixed(2)}
               </Text>
 
-              <View style={styles.quantityContainer}>
-
-                <Pressable
-                  style={styles.quantityButton}
-                  onPress={() =>
-                    onDecrease(item.id)
-                  }
-                >
-                  <Text style={styles.buttonText}>
-                    −
-                  </Text>
-                </Pressable>
-
-                <Text style={styles.quantity}>
-                  {item.quantity}
-                </Text>
-
-                <Pressable
-                  style={styles.quantityButton}
-                  onPress={() =>
-                    onIncrease(item.id)
-                  }
-                >
-                  <Text style={styles.buttonText}>
-                    +
-                  </Text>
-                </Pressable>
-
-              </View>
+              <QuantitySelector
+                quantity={item.quantity}
+                onIncrease={() => onIncrease(item.id)}
+                onDecrease={() => onDecrease(item.id)}
+              />
             </View>
           </View>
         </View>
@@ -243,32 +220,6 @@ const styles = StyleSheet.create({
   price: {
     fontSize: 12,
     color: '#333',
-  },
-
-  quantityContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-
-  quantityButton: {
-    width: 27,
-    height: 27,
-    borderWidth: 1,
-    borderColor: '#F0B4B4',
-    borderRadius: 6,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-
-  buttonText: {
-    fontSize: 17,
-    color: '#B91C1C',
-  },
-
-  quantity: {
-    width: 32,
-    textAlign: 'center',
-    fontSize: 13,
   },
 
   noteLabel: {

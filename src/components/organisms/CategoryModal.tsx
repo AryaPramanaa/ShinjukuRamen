@@ -5,7 +5,7 @@ import {
   Text,
   View,
 } from 'react-native';
-import Icons from '../atoms/Icons';
+import Icon from '../atoms/Icon';
 
 interface CategoryModalProps {
   visible: boolean;
@@ -44,7 +44,7 @@ const CategoryModal = ({
             style={styles.closeButton}
             onPress={onClose}
           >
-            <Icons
+            <Icon
               name="close"
               size={25}
               color="#666666"

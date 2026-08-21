@@ -1,8 +1,8 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import MainTabNavigator from './MainTabNavigation';
-import MenuScreen from '../components/pages/menu/MenuScreen';
-import SplashScreen from '../components/pages/SplashScreen';
+import MenuScreen from '../pages/menu/MenuScreen';
+import SplashScreen from '../pages/SplashScreen';
 
 export type RootTabParamList = {
   Dashboard: undefined;
@@ -26,7 +26,6 @@ const AppNavigator = () => {
         headerShown: false,
       }}
     >
-
       <Stack.Screen
         name="SplashScreen"
         component={SplashScreen}
@@ -35,12 +34,10 @@ const AppNavigator = () => {
         name="MainTabs"
         component={MainTabNavigator}
       />
-
       <Stack.Screen
         name="Menu"
         component={MenuScreen}
       />
-
     </Stack.Navigator>
   );
 };

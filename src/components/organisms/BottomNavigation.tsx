@@ -7,7 +7,7 @@ import {
   BottomTabBarProps,
 } from '@react-navigation/bottom-tabs';
 import NavigationItem from '../molecules/NavigationItem';
-import ScanNavigationItem from '../molecules/ScanNavigationItem';
+import ScanNavigation from '../molecules/ScanNavigation';
 
 const BottomNavigation = ({
   state,
@@ -41,7 +41,7 @@ const BottomNavigation = ({
               key={route.key}
               style={styles.scanWrapper}
             >
-              <ScanNavigationItem
+              <ScanNavigation
                 onPress={handlePress}
               />
             </View>

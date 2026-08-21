@@ -9,8 +9,9 @@ import {
     View,
     useWindowDimensions,
 } from 'react-native';
-import MenuOptionGroup from '../molecules/MenuOpitionGroup';
-import Icons from '../atoms/Icons';
+import MenuOption from '../molecules/MenuOption';
+import Icon from '../atoms/Icon';
+import QuantitySelector from '../molecules/QuantitySelector';
 
 interface MenuItem {
     id: number;
@@ -254,7 +255,7 @@ const AddMenuModal = ({
                         onPress={onClose}
                         style={styles.closeButton}
                     >
-                        <Icons
+                        <Icon
                             name="close"
                             size={largeLayout ? 36 : 24}
                             color="#666666"
@@ -308,66 +309,12 @@ const AddMenuModal = ({
                                     $ {item.price.toFixed(2)}
                                 </Text>
 
-                                <View
-                                    style={[
-                                        styles.quantityContainer,
-                                        largeLayout &&
-                                        styles.largeQuantityContainer,
-                                    ]}
-                                >
-
-                                    <Pressable
-                                        onPress={
-                                            handleDecrease
-                                        }
-                                        style={[
-                                            styles.quantityButton,
-                                            largeLayout &&
-                                            styles.largeQuantityButton,
-                                        ]}
-                                    >
-                                        <Text
-                                            style={[
-                                                styles.quantityMinus,
-                                                largeLayout &&
-                                                styles.largeQuantityText,
-                                            ]}
-                                        >
-                                            −
-                                        </Text>
-                                    </Pressable>
-
-                                    <Text
-                                        style={[
-                                            styles.quantity,
-                                            largeLayout && styles.largeQuantity,
-                                        ]}
-                                    >
-                                        {quantity}
-                                    </Text>
-
-                                    <Pressable
-                                        onPress={
-                                            handleIncrease
-                                        }
-                                        style={[
-                                            styles.quantityButton,
-                                            largeLayout &&
-                                            styles.largeQuantityButton,
-                                        ]}
-                                    >
-                                        <Text
-                                            style={[
-                                                styles.quantityPlus,
-                                                largeLayout &&
-                                                styles.largeQuantityText,
-                                            ]}
-                                        >
-                                            +
-                                        </Text>
-                                    </Pressable>
-
-                                </View>
+                                <QuantitySelector
+                                    quantity={quantity}
+                                    onIncrease={handleIncrease}
+                                    onDecrease={handleDecrease}
+                                    size={largeLayout ? 'medium' : 'small'}
+                                />
                             </View>
 
                         </View>
@@ -376,7 +323,7 @@ const AddMenuModal = ({
 
                     {item.noodles &&
                         item.noodles.length > 0 && (
-                            <MenuOptionGroup
+                            <MenuOption
                                 title="Noodles"
                                 chooseText="Choose 1 item"
                                 options={item.noodles}
@@ -397,7 +344,7 @@ const AddMenuModal = ({
 
                     {item.broth &&
                         item.broth.length > 0 && (
-                            <MenuOptionGroup
+                            <MenuOption
                                 title="Broth Richness"
                                 chooseText="Choose 1 item"
                                 options={item.broth}
@@ -418,7 +365,7 @@ const AddMenuModal = ({
 
                     {item.toppings &&
                         item.toppings.length > 0 && (
-                            <MenuOptionGroup
+                            <MenuOption
                                 title="Toppings"
                                 chooseText="Choose 1-5 items"
                                 options={item.toppings}

@@ -6,7 +6,7 @@ import {
   Text,
   View,
 } from 'react-native';
-import QuantitySelector from '../molecules/QuantitySelector';
+import QuantitySelector from './QuantitySelector';
 
 interface MenuItemProps {
   image: string;

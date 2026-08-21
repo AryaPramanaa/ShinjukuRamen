@@ -5,7 +5,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import Icons from '../atoms/Icons';
+import Icon from '../atoms/Icon';
 
 interface SearchBarProps {
   value: string;
@@ -20,7 +20,7 @@ const SearchBar = ({
 }: SearchBarProps) => {
   return (
     <View style={styles.searchBar}>
-      <Icons
+      <Icon
         name="search-outline"
         size={27}
         color="#666666"
@@ -40,7 +40,7 @@ const SearchBar = ({
           onPress={onClear}
           style={styles.clearButton}
         >
-          <Icons
+          <Icon
             name="close"
             size={18}
             color="#FFFFFF"

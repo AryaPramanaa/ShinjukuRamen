@@ -82,26 +82,27 @@ const CartModal = ({
         </ScrollView>
 
         <View style={styles.footer}>
-          <View style={styles.footerLeft}>
 
+          <View style={styles.cartIconBox}>
             <Text style={styles.cartIcon}>
               🛒
             </Text>
+          </View>
 
-            <View style={styles.totalContainer}>
-              <Text style={styles.totalLabel}>
-                Total
-              </Text>
+          <View style={styles.totalContainer}>
+            <Text style={styles.totalLabel}>
+              Total
+            </Text>
 
-              <Text style={styles.totalPrice}>
-                $ {totalPrice.toFixed(2)}
-              </Text>
-            </View>
+            <Text style={styles.totalPrice}>
+              $ {totalPrice.toFixed(2)}
+            </Text>
           </View>
 
           <Pressable
-            style={styles.checkoutButton}
+            style={[styles.checkoutButton, totalPrice === 0 && styles.checkoutButtonDisabled]}
             onPress={onCheckout}
+            disabled={totalPrice === 0}
           >
             <Text style={styles.checkoutText}>
               Check Out
@@ -172,7 +173,7 @@ const styles = StyleSheet.create({
   footer: {
     marginHorizontal: 25,
     marginTop: 5,
-    marginBottom: 15,
+    marginBottom: 20,
     height: 52,
     paddingHorizontal: 10,
     borderRadius: 8,
@@ -192,7 +193,6 @@ const styles = StyleSheet.create({
     height: 45,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 5,
   },
 
   cartIcon: {
@@ -200,7 +200,8 @@ const styles = StyleSheet.create({
   },
 
   totalContainer: {
-    justifyContent: 'center',
+    flex: 1,
+    marginLeft: 5,
   },
 
   totalLabel: {
@@ -209,7 +210,6 @@ const styles = StyleSheet.create({
   },
 
   totalPrice: {
-    marginTop: 2,
     color: '#FFFFFF',
     fontSize: 13,
     fontWeight: '600',
@@ -223,6 +223,10 @@ const styles = StyleSheet.create({
     borderColor: '#FFFFFF55',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+
+  checkoutButtonDisabled: {
+    opacity: 0.5,
   },
 
   checkoutText: {

@@ -20,7 +20,7 @@ import {
     BarcodeScanningResult,
 } from 'expo-camera';
 
-import Icons from '../atoms/Icons';
+import Icon from '../atoms/Icon';
 
 interface QRScannerProps {
     onClose: () => void;
@@ -92,7 +92,7 @@ const QRScanner = ({
         return (
             <View style={styles.permissionContainer}>
 
-                <Icons
+                <Icon
                     name="camera-outline"
                     size={48}
                     color="#FFFFFF"
@@ -149,7 +149,7 @@ const QRScanner = ({
                         onPress={onClose}
                         style={styles.headerButton}
                     >
-                        <Icons
+                        <Icon
                             name="close"
                             size={26}
                             color="#FFFFFF"
@@ -166,7 +166,7 @@ const QRScanner = ({
                         }}
                         style={styles.headerButton}
                     >
-                        <Icons
+                        <Icon
                             name={
                                 torch
                                     ? 'flash'

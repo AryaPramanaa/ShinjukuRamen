@@ -41,7 +41,7 @@ interface MenuTemplateProps {
     onSelectRamenCategory: (
         category: string,
     ) => void;
-    onCloseCategoryModal: () => void;
+    onCloseCategory: () => void;
     onSelectCategory: (
         category: string,
     ) => void;
@@ -69,7 +69,7 @@ interface MenuTemplateProps {
         additionalPrice: number,
         note: string,
     ) => void;
-    onConfirmAddMenu: (item: any) => void;
+    onCheckout: () => void;
 }
 
 const MenuTemplate = ({
@@ -88,15 +88,17 @@ const MenuTemplate = ({
     totalPrice,
     isAddMenuModal,
     selectedMenu,
+    
 
 
     onSearch,
+    onCheckout,
     onCloseSearch,
     onChangeSearch,
     onClearSearch,
     onOpenCategory,
     onSelectRamenCategory,
-    onCloseCategoryModal,
+    onCloseCategory,
     onSelectCategory,
     onIncrease,
     onDecrease,
@@ -188,7 +190,7 @@ const MenuTemplate = ({
             <CategoryModal
                 visible={isCategoryModal}
                 activeCategory={activeCategory}
-                onClose={onCloseCategoryModal}
+                onClose={onCloseCategory}
                 onSelectCategory={onSelectCategory}
             />
 
@@ -197,9 +199,7 @@ const MenuTemplate = ({
                     totalQuantity={totalQuantity}
                     totalPrice={totalPrice}
                     onCartPress={onOpenCart}
-                    onCheckout={() => {
-                        console.log('Checkout');
-                    }}
+                    onCheckout = {onCheckout}
                 />
             )}
 
@@ -211,9 +211,7 @@ const MenuTemplate = ({
                 onEditItem={onEditItem}
                 onIncrease={onIncrease}
                 onDecrease={onDecrease}
-                onCheckout={() => {
-                    console.log('Checkout');
-                }}
+                onCheckout={onCheckout}
             />
 
             <EditMenuModal

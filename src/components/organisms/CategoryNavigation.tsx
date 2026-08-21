@@ -5,7 +5,7 @@ import {
   StyleSheet,
   Text,
 } from 'react-native';
-import Icons from '../atoms/Icons';
+import Icon from '../atoms/Icon';
 
 interface CategoryNavigationProps {
   activeCategory: string;
@@ -35,7 +35,7 @@ const CategoryNavigation = ({
         style={styles.categoryMenuButton}
         onPress={onOpenCategory}
       >
-        <Icons
+        <Icon
           name="menu-outline"
           size={20}
           color="#B91C1C"

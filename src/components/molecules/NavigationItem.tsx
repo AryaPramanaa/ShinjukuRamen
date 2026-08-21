@@ -5,7 +5,7 @@ import {
   Text,
 } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import Icons from '../atoms/Icons';
+import Icon from '../atoms/Icon';
 
 type IconName =
   React.ComponentProps<typeof Ionicons>['name'];
@@ -28,7 +28,7 @@ const NavigationItem = ({
       onPress={onPress}
       style={styles.container}
     >
-      <Icons
+      <Icon
         name={icon}
         size={24}
         color={

@@ -45,13 +45,14 @@ const CartBar = ({
                     Total
                 </Text>
                 <Text style={styles.totalPrice}>
-                    ${totalPrice.toFixed(2)}
+                    $ {totalPrice.toFixed(2)}
                 </Text>
             </View>
 
             <TouchableOpacity
-                style={styles.checkoutButton}
+                style={[styles.checkoutButton, totalPrice === 0 && styles.checkoutButtonDisabled]}
                 onPress={onCheckout}
+                disabled={totalPrice === 0}
             >
                 <Text style={styles.checkoutText}>
                     Check Out
@@ -132,6 +133,10 @@ const styles = StyleSheet.create({
         borderColor: '#FFFFFF55',
         alignItems: 'center',
         justifyContent: 'center',
+    },
+
+    checkoutButtonDisabled: {
+        opacity: 0.5,
     },
 
     checkoutText: {
