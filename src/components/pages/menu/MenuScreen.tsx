@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
+import { useNavigation } from '@react-navigation/native';
+import { useApp } from '../../../context/AppContext';
 import MenuTemplate from '../../templates/MenuTemplate';
-import OrderSummary from '../../organisms/OrderSummary';
-import RedeemPayment from '../../organisms/RedeemPayment';
 import {
   ramenCategories,
   ramenMenus,
   sidesMenu,
   drinkMenu,
   promoMenu,
-} from '../../../constant/menuData';
+} from '../../../constants/menuData';
 
 interface CartItem {
   id: number;
@@ -21,10 +21,12 @@ interface CartItem {
 }
 
 const MenuScreen = () => {
+  const navigation = useNavigation();
+  const { cart, setCart } = useApp();
+
   const [isCartModal, setIsCartModal] = useState(false);
   const [isEditModal, setIsEditModal] = useState(false);
   const [selectedCartItem, setSelectedCartItem] = useState<CartItem | null>(null);
-  const [cart, setCart] = useState<CartItem[]>([]);
   const [isSearch, setIsSearch] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [activeCategory, setActiveCategory] = useState('Ramen');
@@ -32,33 +34,27 @@ const MenuScreen = () => {
   const [isCategoryModal, setIsCategoryModal] = useState(false);
   const [isAddMenuModal, setIsAddMenuModal] = useState(false);
   const [selectedMenu, setSelectedMenu] = useState<any | null>(null);
-  const [isOrderSummary, setIsOrderSummary] = useState(false);
-  const [isRedeemPayment, setIsRedeemPayment] = useState(false);
+
   const getMenus = () => {
     if (activeCategory === 'Ramen') {
       if (activeRamenCategory === null) {
         return Object.values(ramenMenus).flat();
       }
-
       return (
         ramenMenus[
-        activeRamenCategory as keyof typeof ramenMenus
+          activeRamenCategory as keyof typeof ramenMenus
         ] || []
       );
     }
-
     if (activeCategory === 'Sides') {
       return sidesMenu;
     }
-
     if (activeCategory === 'Drink') {
       return drinkMenu;
     }
-
     if (activeCategory === 'Promo') {
       return promoMenu;
     }
-
     return [];
   };
 
@@ -77,7 +73,7 @@ const MenuScreen = () => {
 
   const handleCheckout = () => {
     setIsCartModal(false);
-    setIsOrderSummary(true);
+    navigation.navigate('OrderSummary' as never);
   };
 
   const handleAddFromModal = (
@@ -100,7 +96,6 @@ const MenuScreen = () => {
           cartItem.price === itemPrice,
       );
 
-      // Resolve option names into a single string
       const resolvedNoodles = (item.noodles || [])
         .filter((n: any) => selectedOptions.noodles.includes(n.id))
         .map((n: any) => n.name);
@@ -227,7 +222,6 @@ const MenuScreen = () => {
   };
 
   const handleAddItem = (item: any) => {
-
     const hasOptions =
       item.noodles ||
       item.broth ||
@@ -240,7 +234,6 @@ const MenuScreen = () => {
     }
 
     setCart(prevCart => {
-
       const existingItem = prevCart.find(
         cartItem => cartItem.id === item.id,
       );
@@ -299,7 +292,6 @@ const MenuScreen = () => {
     const item = cart.find(
       cartItem => cartItem.id === id,
     );
-
     return item ? item.quantity : 0;
   };
 
@@ -311,38 +303,6 @@ const MenuScreen = () => {
     (total, item) =>
       total + item.price * item.quantity, 0,
   );
-
-  if (isRedeemPayment) {
-    return (
-      <RedeemPayment
-        totalPrice={totalPrice}
-        onBack={() => setIsRedeemPayment(false)}
-        onPay={(paymentMethod, provider) => {
-          console.log('Pay:', paymentMethod, provider);
-          alert('Payment Successful!');
-          setCart([]);
-          setIsRedeemPayment(false);
-          setIsOrderSummary(false);
-        }}
-      />
-    );
-  }
-
-  if (isOrderSummary) {
-    return (
-      <OrderSummary
-        cart={cart}
-        totalPrice={totalPrice}
-        onBack={() => setIsOrderSummary(false)}
-        onIncrease={handleIncrease}
-        onDecrease={handleDecrease}
-        onEditItem={handleEditItem}
-        onContinuePayment={() => {
-          setIsRedeemPayment(true);
-        }}
-      />
-    );
-  }
 
   return (
     <MenuTemplate
@@ -366,37 +326,27 @@ const MenuScreen = () => {
       onSearch={handleOpenSearch}
       onCloseSearch={handleCloseSearch}
       onChangeSearch={setSearchText}
-      onConfirmAddMenu={handleConfirmAddMenu}
       onCheckout={handleCheckout}
       onClearSearch={() => {
         setSearchText('');
       }}
-
       onOpenCategory={() => {
         setIsCategoryModal(true);
       }}
-
-      onSelectRamenCategory={
-        setActiveRamenCategory
-      }
-
-      onCloseCategoryModal={() => {
+      onCloseCategory={() => {
         setIsCategoryModal(false);
       }}
-
-      onSelectCategory={
-        handleSelectCategory
-      }
-
+      onSelectCategory={handleSelectCategory}
+      onSelectRamenCategory={setActiveRamenCategory}
+      onOpenCart={handleOpenCart}
+      onCloseCart={handleCloseCart}
       onAddItem={handleAddItem}
       onIncrease={handleIncrease}
       onDecrease={handleDecrease}
-      getQuantity={getQuantity}
-      onOpenCart={handleOpenCart}
-      onCloseCart={handleCloseCart}
       onEditItem={handleEditItem}
       onCloseEdit={handleCloseEdit}
       onUpdateNote={handleUpdateNote}
+      getQuantity={getQuantity}
     />
   );
 };

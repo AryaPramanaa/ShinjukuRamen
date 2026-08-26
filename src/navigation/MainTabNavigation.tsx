@@ -2,9 +2,9 @@ import React from 'react';
 import {
   createBottomTabNavigator,
 } from '@react-navigation/bottom-tabs';
-import Dashboard from '../pages/Dashboard';
-import Scan from '../pages/menu/ScanMenuScreen';
-import Order from '../pages/orders/OrderScreen';
+import Dashboard from '../components/pages/dashboard/Dashboard';
+import Scan from '../components/pages/menu/ScanMenu';
+import Order from '../components/pages/orders/OrderScreen';
 import BottomNavigation from '../components/organisms/BottomNavigation';
 import type {
   RootTabParamList,

@@ -6,8 +6,8 @@ import {
   Text,
   View,
 } from 'react-native';
-
 import CartItem from '../molecules/CartItem';
+import Icon from '../atoms/Icon';
 
 interface CartModalProps {
   visible: boolean;
@@ -30,10 +30,11 @@ const CartModal = ({
   onDecrease,
   onCheckout,
 }: CartModalProps) => {
-
   if (!visible) {
     return null;
   }
+
+  const totalQuantity = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
     <View style={styles.overlay}>
@@ -59,41 +60,38 @@ const CartModal = ({
           showsVerticalScrollIndicator={false}
           style={styles.list}
         >
-
           {cart.map(item => (
             <CartItem
               key={item.id}
               item={item}
-
-              onEdit={() =>
-                onEditItem(item)
-              }
-
-              onIncrease={() =>
-                onIncrease(item.id)
-              }
-
-              onDecrease={() =>
-                onDecrease(item.id)
-              }
+              onEdit={() => onEditItem(item)}
+              onIncrease={() => onIncrease(item.id)}
+              onDecrease={() => onDecrease(item.id)}
             />
           ))}
-
         </ScrollView>
 
+        {/* Footer Checkout Bar */}
         <View style={styles.footer}>
+          
+          <View style={styles.cartButton}>
+            <View style={styles.cartIconWrapper}>
+              <Icon name="cart" size={20} color="#8B1D1D" />
+            </View>
 
-          <View style={styles.cartIconBox}>
-            <Text style={styles.cartIcon}>
-              🛒
-            </Text>
+            {totalQuantity > 0 && (
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>
+                  {totalQuantity}
+                </Text>
+              </View>
+            )}
           </View>
 
           <View style={styles.totalContainer}>
             <Text style={styles.totalLabel}>
               Total
             </Text>
-
             <Text style={styles.totalPrice}>
               $ {totalPrice.toFixed(2)}
             </Text>
@@ -151,23 +149,25 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    borderBottomWidth: 1,
+    borderBottomColor: '#EEEEEE',
   },
 
   title: {
     fontSize: 18,
-    fontWeight: '600',
-    color: '#222222',
+    fontWeight: '700',
+    color: '#171717',
   },
 
   close: {
-    fontSize: 28,
+    fontSize: 26,
+    color: '#999999',
     fontWeight: '300',
-    color: '#666666',
   },
 
   list: {
-    paddingTop: 5,
-    paddingHorizontal : 5
+    paddingHorizontal: 25,
+    paddingVertical: 10,
   },
 
   footer: {
@@ -177,48 +177,67 @@ const styles = StyleSheet.create({
     height: 52,
     paddingHorizontal: 10,
     borderRadius: 8,
-    backgroundColor: '#B91C1C',
+    backgroundColor: '#8B1D1D', // Brand crimson
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
 
-  footerLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  cartButton: {
+    position: 'relative',
+    marginRight: 6,
   },
 
-  cartIconBox: {
-    width: 45,
-    height: 45,
+  cartIconWrapper: {
+    width: 36,
+    height: 36,
+    borderRadius: 6,
+    backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
   },
 
-  cartIcon: {
-    fontSize: 22,
+  badge: {
+    position: 'absolute',
+    right: -6,
+    top: -6,
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    backgroundColor: '#84CC16', // Lime green
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#FFFFFF',
+  },
+
+  badgeText: {
+    color: '#FFFFFF',
+    fontSize: 10,
+    fontWeight: '700',
   },
 
   totalContainer: {
     flex: 1,
-    marginLeft: 5,
+    marginLeft: 8,
   },
 
   totalLabel: {
     color: '#FFFFFF',
-    fontSize: 13,
+    fontSize: 12,
   },
 
   totalPrice: {
     color: '#FFFFFF',
-    fontSize: 13,
-    fontWeight: '600',
+    fontSize: 16,
+    fontWeight: '700',
+    marginTop: 2,
   },
 
   checkoutButton: {
     height: 34,
-    paddingHorizontal: 14,
-    borderRadius: 5,
+    paddingHorizontal: 16,
+    borderRadius: 6,
     borderWidth: 1,
     borderColor: '#FFFFFF55',
     alignItems: 'center',
@@ -232,6 +251,8 @@ const styles = StyleSheet.create({
   checkoutText: {
     color: '#FFFFFF',
     fontSize: 13,
+    fontWeight: '700',
   },
 });
+
 export default CartModal;

@@ -1,12 +1,11 @@
-import React, {useEffect} from 'react';
+import React, { useEffect } from 'react';
 import {
     StyleSheet,
     View,
     Image,
 } from 'react-native';
 
-const SplashScreen = ({navigation}: any) => {
-
+const SplashScreen = ({ navigation }: any) => {
     useEffect(() => {
         const timer = setTimeout(() => {
             navigation.replace('MainTabs');
@@ -17,13 +16,11 @@ const SplashScreen = ({navigation}: any) => {
 
     return (
         <View style={styles.container}>
-
             <Image
-                source={require('../../Assets/ramen-Photoroom.png')}
+                source={require('../../../Assets/ramen-Photoroom.png')}
                 style={styles.logo}
                 resizeMode="contain"
             />
-
         </View>
     );
 };
@@ -35,7 +32,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: '#FFFFFF',
     },
-
     logo: {
         width: 400,
         height: 400,

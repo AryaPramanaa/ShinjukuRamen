@@ -10,41 +10,114 @@ import Icon from '../atoms/Icon';
 
 interface MembershipTiersProps {
   onBack: () => void;
+  currentPoints?: number;
 }
 
 type Tier = 'bronze' | 'silver' | 'gold';
 
-const MembershipTiers = ({ onBack }: MembershipTiersProps) => {
-  const [activeTier, setActiveTier] = useState<Tier>('bronze');
+const MembershipTiers = ({
+  onBack,
+  currentPoints = 0,
+}: MembershipTiersProps) => {
+  // Determine actual tier based on currentPoints
+  const actualMemberTier: Tier = currentPoints < 100 ? 'bronze' : (currentPoints < 1000 ? 'silver' : 'gold');
+  
+  // Active viewing tier state starts on their actual tier
+  const [activeTier, setActiveTier] = useState<Tier>(actualMemberTier);
 
   const getTierColors = (tier: Tier) => {
     switch (tier) {
       case 'silver':
         return {
-          bg: '#9CA3AF',
+          bg: '#9EA6B2',
           badgeBg: '#78716C',
-          cardBg: '#8C939F',
-          indicator: '#FFFFFF',
+          cardBg: '#8C93A0',
         };
       case 'gold':
         return {
-          bg: '#EAB308',
+          bg: '#E2AE25',
           badgeBg: '#CA8A04',
-          cardBg: '#DFAB07',
-          indicator: '#FFFFFF',
+          cardBg: '#D49E1B',
         };
       case 'bronze':
       default:
         return {
           bg: '#C18F58',
           badgeBg: '#A16207',
-          cardBg: '#B37D49',
-          indicator: '#FFFFFF',
+          cardBg: '#C18F58',
         };
     }
   };
 
   const currentColors = getTierColors(activeTier);
+
+  // Dynamic progress line calculations based on actual user points
+  const getProgressWidth = () => {
+    const points = currentPoints;
+    if (points <= 100) {
+      return `${(points / 100) * 50}%`;
+    } else if (points <= 1000) {
+      return `${50 + ((points - 100) / 900) * 50}%`;
+    } else {
+      return '100%';
+    }
+  };
+
+  // Renders 3D hexagon badge using rotated rounded rectangles
+  const renderHexBadge = (tier: Tier, isCenter: boolean) => {
+    const size = isCenter ? 110 : 44;
+    const innerSize = size * 0.82;
+
+    const colors = {
+      bronze: {
+        outer: '#D1A172',
+        inner: '#8E5728',
+      },
+      silver: {
+        outer: '#CBD2DB',
+        inner: '#8C93A0',
+      },
+      gold: {
+        outer: '#FEDE6D',
+        inner: '#C88E10',
+      },
+    }[tier];
+
+    const outerRectStyle = {
+      width: size,
+      height: size / Math.sqrt(3),
+      position: 'absolute' as const,
+      borderRadius: size * 0.05,
+      backgroundColor: colors.outer,
+    };
+
+    const innerRectStyle = {
+      width: innerSize,
+      height: innerSize / Math.sqrt(3),
+      position: 'absolute' as const,
+      borderRadius: innerSize * 0.05,
+      backgroundColor: colors.inner,
+    };
+
+    return (
+      <View style={{ width: size, height: size, justifyContent: 'center', alignItems: 'center', position: 'relative' }}>
+        {/* Concentric Outer Hexagon */}
+        <View style={[outerRectStyle, { transform: [{ rotate: '0deg' }] }]} />
+        <View style={[outerRectStyle, { transform: [{ rotate: '60deg' }] }]} />
+        <View style={[outerRectStyle, { transform: [{ rotate: '120deg' }] }]} />
+
+        {/* Concentric Inner Hexagon */}
+        <View style={{ width: innerSize, height: innerSize, justifyContent: 'center', alignItems: 'center', position: 'absolute' }}>
+          <View style={[innerRectStyle, { transform: [{ rotate: '0deg' }] }]} />
+          <View style={[innerRectStyle, { transform: [{ rotate: '60deg' }] }]} />
+          <View style={[innerRectStyle, { transform: [{ rotate: '120deg' }] }]} />
+          
+          {/* Central Tier Star */}
+          <Icon name="star" size={isCenter ? 48 : 16} color={colors.outer} />
+        </View>
+      </View>
+    );
+  };
 
   return (
     <View style={[styles.container, { backgroundColor: currentColors.bg }]}>
@@ -61,31 +134,38 @@ const MembershipTiers = ({ onBack }: MembershipTiersProps) => {
       <View style={styles.tierSelectorArea}>
         
         <View style={styles.badgeContainer}>
-          {/* Left indicator / side badge */}
+          {/* Left Navigation Side Badge */}
           {activeTier === 'silver' && (
             <Pressable onPress={() => setActiveTier('bronze')} style={[styles.sideBadge, styles.leftSide]}>
-              <View style={[styles.sideBadgeHex, { backgroundColor: '#CD7F32' }]}>
-                <Icon name="star" size={16} color="#FFFFFF" />
-              </View>
+              {renderHexBadge('bronze', false)}
+              {actualMemberTier === 'bronze' && (
+                <View style={styles.sideActiveCapsule}>
+                  <Text style={styles.sideActiveCapsuleText}>Your Tier</Text>
+                </View>
+              )}
               <Text style={styles.sideBadgeText}>Bronze</Text>
+              <Text style={styles.sideBadgePoints}>{'> 0 Point'}</Text>
             </Pressable>
           )}
           {activeTier === 'gold' && (
             <Pressable onPress={() => setActiveTier('silver')} style={[styles.sideBadge, styles.leftSide]}>
-              <View style={[styles.sideBadgeHex, { backgroundColor: '#C0C0C0' }]}>
-                <Icon name="star" size={16} color="#FFFFFF" />
-              </View>
+              {renderHexBadge('silver', false)}
+              {actualMemberTier === 'silver' && (
+                <View style={styles.sideActiveCapsule}>
+                  <Text style={styles.sideActiveCapsuleText}>Your Tier</Text>
+                </View>
+              )}
               <Text style={styles.sideBadgeText}>Silver</Text>
+              <Text style={styles.sideBadgePoints}>{'> 100 Point'}</Text>
             </Pressable>
           )}
 
-          {/* Active Badge (Centered) */}
+          {/* Centered Active Hexagon Badge */}
           <View style={styles.activeBadgeWrapper}>
-            <View style={[styles.badgeHex, { backgroundColor: activeTier === 'bronze' ? '#CD7F32' : activeTier === 'silver' ? '#C0C0C0' : '#FFD700' }]}>
-              <Icon name="star" size={44} color="#FFFFFF" />
-            </View>
+            {renderHexBadge(activeTier, true)}
             
-            {activeTier === 'bronze' && (
+            {/* Show "Your Tier" white capsule badge if activeTier matches actual member status */}
+            {activeTier === actualMemberTier && (
               <View style={styles.activeLabelContainer}>
                 <Text style={styles.activeLabel}>Your Tier</Text>
               </View>
@@ -99,54 +179,62 @@ const MembershipTiers = ({ onBack }: MembershipTiersProps) => {
             </Text>
           </View>
 
-          {/* Right indicator / side badge */}
+          {/* Right Navigation Side Badge */}
           {activeTier === 'bronze' && (
             <Pressable onPress={() => setActiveTier('silver')} style={[styles.sideBadge, styles.rightSide]}>
-              <View style={[styles.sideBadgeHex, { backgroundColor: '#C0C0C0' }]}>
-                <Icon name="star" size={16} color="#FFFFFF" />
-              </View>
+              {renderHexBadge('silver', false)}
+              {actualMemberTier === 'silver' && (
+                <View style={styles.sideActiveCapsule}>
+                  <Text style={styles.sideActiveCapsuleText}>Your Tier</Text>
+                </View>
+              )}
               <Text style={styles.sideBadgeText}>Silver</Text>
+              <Text style={styles.sideBadgePoints}>{'> 100 Point'}</Text>
             </Pressable>
           )}
           {activeTier === 'silver' && (
             <Pressable onPress={() => setActiveTier('gold')} style={[styles.sideBadge, styles.rightSide]}>
-              <View style={[styles.sideBadgeHex, { backgroundColor: '#FFD700' }]}>
-                <Icon name="star" size={16} color="#FFFFFF" />
-              </View>
+              {renderHexBadge('gold', false)}
+              {actualMemberTier === 'gold' && (
+                <View style={styles.sideActiveCapsule}>
+                  <Text style={styles.sideActiveCapsuleText}>Your Tier</Text>
+                </View>
+              )}
               <Text style={styles.sideBadgeText}>Gold</Text>
+              <Text style={styles.sideBadgePoints}>{'> 1.000 Point'}</Text>
             </Pressable>
           )}
         </View>
 
         {/* STEP PROGRESS LINE */}
         <View style={styles.progressTrackContainer}>
-          <View style={styles.progressLine} />
+          <View style={styles.trackLineContainer}>
+            <View style={styles.progressLine} />
+            <View style={[styles.progressFilledLine, { width: getProgressWidth() }]} />
+          </View>
           
+          {/* Interactive Node Dots */}
           <View style={styles.dotsRow}>
-            {/* Bronze Dot */}
-            <Pressable
-              onPress={() => setActiveTier('bronze')}
-              style={[
-                styles.progressDot,
-                activeTier === 'bronze' && styles.progressDotActive,
-              ]}
-            />
-            {/* Silver Dot */}
-            <Pressable
-              onPress={() => setActiveTier('silver')}
-              style={[
-                styles.progressDot,
-                activeTier === 'silver' && styles.progressDotActive,
-              ]}
-            />
-            {/* Gold Dot */}
-            <Pressable
-              onPress={() => setActiveTier('gold')}
-              style={[
-                styles.progressDot,
-                activeTier === 'gold' && styles.progressDotActive,
-              ]}
-            />
+            {/* Bronze Node */}
+            <Pressable onPress={() => setActiveTier('bronze')} style={styles.progressDotWrapper}>
+              <View style={styles.progressDot}>
+                <View style={styles.progressDotInner} />
+              </View>
+            </Pressable>
+
+            {/* Silver Node */}
+            <Pressable onPress={() => setActiveTier('silver')} style={styles.progressDotWrapper}>
+              <View style={styles.progressDot}>
+                <View style={styles.progressDotInner} />
+              </View>
+            </Pressable>
+
+            {/* Gold Node */}
+            <Pressable onPress={() => setActiveTier('gold')} style={styles.progressDotWrapper}>
+              <View style={styles.progressDot}>
+                <View style={styles.progressDotInner} />
+              </View>
+            </Pressable>
           </View>
         </View>
 
@@ -164,7 +252,10 @@ const MembershipTiers = ({ onBack }: MembershipTiersProps) => {
             {/* Card 1 */}
             <View style={[styles.benefitCard, { backgroundColor: currentColors.cardBg }]}>
               <View style={styles.benefitIconContainer}>
-                <Icon name="cloud-download-outline" size={24} color="#FFFFFF" />
+                <Icon name="cloud" size={22} color="#FFFFFF" />
+                <View style={[styles.iconOverlayBolt, { backgroundColor: currentColors.cardBg }]}>
+                  <Icon name="flash" size={9} color="#FFFFFF" />
+                </View>
               </View>
               <Text style={styles.benefitText}>Basic Reward Points</Text>
             </View>
@@ -172,17 +263,23 @@ const MembershipTiers = ({ onBack }: MembershipTiersProps) => {
             {/* Card 2 */}
             <View style={[styles.benefitCard, { backgroundColor: currentColors.cardBg }]}>
               <View style={styles.benefitIconContainer}>
-                <Icon name="megaphone-outline" size={24} color="#FFFFFF" />
+                <Icon name="cloud" size={22} color="#FFFFFF" />
+                <View style={[styles.iconOverlayBolt, { backgroundColor: currentColors.cardBg }]}>
+                  <Icon name="flash" size={9} color="#FFFFFF" />
+                </View>
               </View>
               <Text style={styles.benefitText}>Access To General Ongoing Promotions</Text>
             </View>
 
-            {/* Card 3 */}
-            <View style={[styles.benefitCard, { backgroundColor: currentColors.cardBg, width: '100%', marginTop: 12 }]}>
+            {/* Card 3 (Takes 48% width in column 1 of row 2) */}
+            <View style={[styles.benefitCard, { backgroundColor: currentColors.cardBg }]}>
               <View style={styles.benefitIconContainer}>
-                <Icon name="trending-up-outline" size={24} color="#FFFFFF" />
+                <Icon name="cloud" size={22} color="#FFFFFF" />
+                <View style={[styles.iconOverlayBolt, { backgroundColor: currentColors.cardBg }]}>
+                  <Icon name="flash" size={9} color="#FFFFFF" />
+                </View>
               </View>
-              <Text style={styles.benefitText}>Ability To Collect Points And Upgrade Tier</Text>
+              <Text style={styles.benefitText}>Ability To Collect Points And Upgrade Tie</Text>
             </View>
 
           </View>
@@ -229,38 +326,48 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     width: '100%',
-    height: 180,
+    height: 170,
   },
 
   sideBadge: {
     position: 'absolute',
     alignItems: 'center',
-    opacity: 0.5,
+    opacity: 0.75,
   },
 
   leftSide: {
-    left: 20,
+    left: -15,
   },
 
   rightSide: {
-    right: 20,
-  },
-
-  sideBadgeHex: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: '#FFFFFF',
+    right: -15,
   },
 
   sideBadgeText: {
     color: '#FFFFFF',
-    fontSize: 12,
-    marginTop: 6,
+    fontSize: 11,
+    marginTop: 4,
     fontWeight: '600',
+  },
+
+  sideBadgePoints: {
+    color: 'rgba(255, 255, 255, 0.75)',
+    fontSize: 10,
+    marginTop: 1,
+  },
+
+  sideActiveCapsule: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 8,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    marginTop: 4,
+  },
+
+  sideActiveCapsuleText: {
+    color: '#171717',
+    fontSize: 9,
+    fontWeight: '700',
   },
 
   activeBadgeWrapper: {
@@ -268,105 +375,124 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
 
-  badgeHex: {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 3,
-    borderColor: '#FFFFFF',
-    elevation: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
-  },
-
   activeLabelContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    backgroundColor: '#FFFFFF',
     borderRadius: 12,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
+    paddingHorizontal: 10,
+    paddingVertical: 3,
     marginTop: 8,
   },
 
   activeLabel: {
-    color: '#FFFFFF',
+    color: '#171717',
     fontSize: 10,
-    fontWeight: '600',
+    fontWeight: '700',
   },
 
   badgeTitle: {
-    fontSize: 20,
+    fontSize: 17,
     fontWeight: '700',
     color: '#FFFFFF',
-    marginTop: 6,
+    marginTop: 4,
   },
 
   badgePoints: {
     fontSize: 12,
-    color: '#FFFFFFF0',
+    color: 'rgba(255, 255, 255, 0.85)',
     marginTop: 2,
   },
 
   progressTrackContainer: {
-    width: '60%',
+    width: '65%',
     height: 20,
     justifyContent: 'center',
-    alignItems: 'center',
+    position: 'relative',
     marginTop: 10,
+  },
+
+  trackLineContainer: {
+    position: 'absolute',
+    left: 7,
+    right: 7,
+    height: '100%',
+    justifyContent: 'center',
   },
 
   progressLine: {
     position: 'absolute',
-    height: 3,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    height: 8,
+    backgroundColor: 'rgba(0, 0, 0, 0.2)',
     left: 0,
     right: 0,
+    borderRadius: 4,
+  },
+
+  progressFilledLine: {
+    position: 'absolute',
+    height: 8,
+    backgroundColor: '#FFFFFF',
+    left: 0,
+    borderRadius: 4,
   },
 
   dotsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     width: '100%',
-    paddingHorizontal: 2,
+    position: 'absolute',
+    left: 0,
+    right: 0,
+  },
+
+  progressDotWrapper: {
+    width: 20,
+    height: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: -8,
   },
 
   progressDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: 'rgba(255, 255, 255, 0.4)',
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#EAEAEA',
   },
 
-  progressDotActive: {
-    backgroundColor: '#FFFFFF',
-    transform: [{ scale: 1.3 }],
+  progressDotInner: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#E69E2E',
   },
 
   benefitsSheet: {
     flex: 1,
     backgroundColor: '#FFFFFF',
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    paddingHorizontal: 20,
-    paddingTop: 24,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    marginTop: 5,
   },
 
   benefitsContent: {
+    paddingHorizontal: 20,
+    paddingTop: 24,
     paddingBottom: 40,
   },
 
   sheetTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '700',
     color: '#171717',
     marginBottom: 4,
   },
 
   sheetSubtitle: {
-    fontSize: 13,
+    fontSize: 12,
     color: '#999999',
     marginBottom: 20,
   },
@@ -375,31 +501,45 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
+    rowGap: 12,
   },
 
   benefitCard: {
     width: '48%',
+    height: 115,
     borderRadius: 12,
-    padding: 16,
-    minHeight: 110,
-    justifyContent: 'center',
+    padding: 14,
+    justifyContent: 'space-between',
   },
 
   benefitIconContainer: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 12,
+    position: 'relative',
+  },
+
+  iconOverlayBolt: {
+    position: 'absolute',
+    bottom: -1,
+    right: -1,
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#FFFFFF',
   },
 
   benefitText: {
-    fontSize: 13,
-    fontWeight: '600',
     color: '#FFFFFF',
-    lineHeight: 18,
+    fontSize: 12,
+    fontWeight: '600',
+    lineHeight: 16,
   },
 });
 
