@@ -8,11 +8,11 @@ import {
   View,
 } from 'react-native';
 import QuantitySelector from '../molecules/QuantitySelector';
+import DefaultFoodImage from '../atoms/DefaultFoodImage';
 
 interface EditMenuModalProps {
   visible: boolean;
   item: any | null;
-
   onClose: () => void;
   onIncrease: (id: number) => void;
   onDecrease: (id: number) => void;
@@ -44,12 +44,10 @@ const EditMenuModal = ({
   }
 
   const handleUpdate = () => {
-
     onUpdateNote(
       item.id,
       note,
     );
-
     onClose();
   };
 
@@ -83,10 +81,14 @@ const EditMenuModal = ({
 
         <View style={styles.menuContainer}>
 
-          <Image
-            source={{uri: item.image}}
-            style={styles.image}
-          />
+          {item.image ? (
+            <Image
+              source={{ uri: item.image }}
+              style={styles.image}
+            />
+          ) : (
+            <DefaultFoodImage width={55} height={55} borderRadius={6} />
+          )}
 
           <View style={styles.menuInfo}>
 
@@ -105,30 +107,36 @@ const EditMenuModal = ({
                 onIncrease={() => onIncrease(item.id)}
                 onDecrease={() => onDecrease(item.id)}
               />
+
             </View>
+
           </View>
+
         </View>
 
+        {/* NOTE */}
+
         <Text style={styles.noteLabel}>
-          Note (Optional)
+          Add Note
         </Text>
 
         <TextInput
           value={note}
           onChangeText={setNote}
-          placeholder="Add note..."
-          placeholderTextColor="#CCCCCC"
-          multiline
+          placeholder="E.g., No onions, extra spicy..."
+          placeholderTextColor="#999999"
           style={styles.noteInput}
+          multiline={true}
         />
 
-        {/* UPDATE */}
+        {/* BUTTON */}
+
         <Pressable
-          style={styles.updateButton}
           onPress={handleUpdate}
+          style={styles.button}
         >
-          <Text style={styles.updateText}>
-            Update Menu
+          <Text style={styles.buttonText}>
+            Update
           </Text>
         </Pressable>
 
@@ -141,29 +149,30 @@ const EditMenuModal = ({
 const styles = StyleSheet.create({
   overlay: {
     position: 'absolute',
-    top: 0,
     left: 0,
     right: 0,
+    top: 0,
     bottom: 0,
-    zIndex: 300,
+    zIndex: 1000,
     justifyContent: 'flex-end',
   },
 
   backdrop: {
     position: 'absolute',
-    top: 0,
     left: 0,
     right: 0,
+    top: 0,
     bottom: 0,
-    backgroundColor: 'rgba(0,0,0,0.45)',
+    backgroundColor: 'rgba(0,0,0,0.5)',
   },
 
   modal: {
     backgroundColor: '#FFFFFF',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    paddingHorizontal: 16,
-    paddingBottom: 15,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    paddingHorizontal: 20,
+    paddingBottom: 25,
+    maxHeight: '90%',
   },
 
   header: {
@@ -233,26 +242,26 @@ const styles = StyleSheet.create({
     height: 62,
     borderWidth: 1,
     borderColor: '#EEEEEE',
-    borderRadius: 6,
+    borderRadius: 8,
     padding: 10,
-    textAlignVertical: 'top',
     fontSize: 12,
     color: '#333',
+    textAlignVertical: 'top',
   },
 
-  updateButton: {
-    height: 42,
-    marginTop: 15,
-    borderRadius: 5,
-    backgroundColor: '#B91C1C',
+  button: {
+    height: 38,
+    borderRadius: 8,
+    backgroundColor: '#8B1D1D',
     alignItems: 'center',
     justifyContent: 'center',
+    marginTop: 20,
   },
 
-  updateText: {
+  buttonText: {
     color: '#FFFFFF',
-    fontSize: 15,
-    fontWeight: '500',
+    fontSize: 13,
+    fontWeight: '600',
   },
 });
 

@@ -5,16 +5,16 @@ import {
   StyleSheet,
   Text,
   View,
+  Modal,
 } from 'react-native';
 import Icon from '../atoms/Icon';
 import { useNavigation } from '@react-navigation/native';
 import RewardsPointsCard from '../molecules/RewardsPointsCard';
+import { useApp } from '../../context/AppContext';
 
 interface ClaimRewardsProps {
-  points?: number;
   onBack: () => void;
   onViewTier: () => void;
-  onRedeemBirthdayDiscount: () => void;
   onHistoryPress?: () => void;
   isBirthday?: boolean;
 }
@@ -22,20 +22,39 @@ interface ClaimRewardsProps {
 type TabType = 'All' | 'Free Item' | 'Discount';
 
 const ClaimRewards = ({
-  points = 90,
   onBack,
   onViewTier,
-  onRedeemBirthdayDiscount,
   onHistoryPress,
   isBirthday = true,
 }: ClaimRewardsProps) => {
+  const {
+    points,
+    setPoints,
+    isBirthdayDiscountApplied,
+    setIsBirthdayDiscountApplied,
+    isFreeRamenApplied,
+    setIsFreeRamenApplied,
+    customerInfoData,
+  } = useApp();
+
+  const isBirthdayToday = (dobString?: string) => {
+    if (!dobString) return false;
+    const today = new Date();
+    const currentMonth = today.toLocaleString('en-US', { month: 'long' }).toLowerCase();
+    const currentDate = today.getDate();
+    const lowerDob = dobString.toLowerCase();
+    return lowerDob.includes(currentMonth) && new RegExp(`\\b${currentDate}\\b`).test(lowerDob);
+  };
+
+  const isUserBirthday = customerInfoData !== null && isBirthdayToday(customerInfoData?.dob);
+
   const [activeTab, setActiveTab] = useState<TabType>('All');
-const navigation = useNavigation();
-const handleRedeemBirthday = () => {
-  onRedeemBirthdayDiscount();
-  // Navigate to QR display screen with placeholder URL; replace with actual URL logic
-  navigation.navigate('QRDisplay' as never, { url: 'https://example.com/reward' } as never);
-};
+  
+  // Redeem Confirmation States
+  const [showRedeemConfirm, setShowRedeemConfirm] = useState(false);
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [selectedRewardCost, setSelectedRewardCost] = useState(0);
+  const [selectedRewardType, setSelectedRewardType] = useState<'birthday' | 'ramen' | null>(null);
 
   const tabs: TabType[] = ['All', 'Free Item', 'Discount'];
 
@@ -45,11 +64,51 @@ const handleRedeemBirthday = () => {
   const disc20Cost = 20000;
   const disc10Cost = 100000;
 
+  const triggerRedeem = (cost: number, type: 'birthday' | 'ramen') => {
+    setSelectedRewardCost(cost);
+    setSelectedRewardType(type);
+    setShowRedeemConfirm(true);
+  };
+
+  const triggerCancel = (cost: number, type: 'birthday' | 'ramen') => {
+    setSelectedRewardCost(cost);
+    setSelectedRewardType(type);
+    setShowCancelConfirm(true);
+  };
+
+  const handleConfirmRedeem = () => {
+    setPoints((prev) => prev - selectedRewardCost);
+    if (selectedRewardType === 'birthday') {
+      setIsBirthdayDiscountApplied(true);
+    } else if (selectedRewardType === 'ramen') {
+      setIsFreeRamenApplied(true);
+    }
+    setShowRedeemConfirm(false);
+  };
+
+  const handleConfirmCancel = () => {
+    setPoints((prev) => prev + selectedRewardCost);
+    if (selectedRewardType === 'birthday') {
+      setIsBirthdayDiscountApplied(false);
+    } else if (selectedRewardType === 'ramen') {
+      setIsFreeRamenApplied(false);
+    }
+    setShowCancelConfirm(false);
+  };
+
+  const getHeaderBgColor = (pts: number) => {
+    if (pts <= 100) return '#B37648'; // Bronze
+    if (pts <= 1000) return '#8E9AA6'; // Silver
+    return '#C59E27'; // Gold
+  };
+
+  const headerBg = getHeaderBgColor(points);
+
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: headerBg }]}>
       
       {/* GOLD HEADER BANNER */}
-      <View style={styles.headerBanner}>
+      <View style={[styles.headerBanner, { backgroundColor: headerBg }]}>
         <View style={styles.headerTop}>
           <Pressable onPress={onBack} style={styles.backBtn}>
             <Icon name="arrow-back" size={24} color="#FFFFFF" />
@@ -63,9 +122,6 @@ const handleRedeemBirthday = () => {
           <RewardsPointsCard
             hasInfo={true}
             points={points}
-            neededPoints={100 - points > 0 ? 100 - points : 0}
-            nextTier="silver"
-            progressBarWidth={`${(points / 100) * 100}%`}
             onViewTier={onViewTier}
             onHistoryPress={onHistoryPress}
             isTransparentMode={true}
@@ -98,8 +154,8 @@ const handleRedeemBirthday = () => {
         {/* SCROLLABLE LIST */}
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
           
-          {/* SECTION 1: BIRTHDAY REWARDS (Only rendered if isBirthday is true) */}
-          {isBirthday && (activeTab === 'All' || activeTab === 'Free Item' || activeTab === 'Discount') && (
+          {/* SECTION 1: BIRTHDAY REWARDS (Only rendered if it is user's birthday today) */}
+          {isUserBirthday && (activeTab === 'All' || activeTab === 'Free Item' || activeTab === 'Discount') && (
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Especially for you on your birthday 🎂🎉</Text>
               <Text style={styles.sectionSubtitle}>Enjoy these benefits on your birthday</Text>
@@ -116,9 +172,16 @@ const handleRedeemBirthday = () => {
                   <Text style={styles.rewardSubtitle}>Percentage Discount - 20%</Text>
                   <Text style={styles.rewardPointsLarge}>20 Point</Text>
                   
-                  {points >= birthdayCost ? (
+                  {isBirthdayDiscountApplied ? (
                     <Pressable
-                      onPress={handleRedeemBirthday}
+                      onPress={() => triggerCancel(birthdayCost, 'birthday')}
+                      style={styles.btnRedeemApplied}
+                    >
+                      <Text style={styles.btnRedeemAppliedText}>Remove</Text>
+                    </Pressable>
+                  ) : points >= birthdayCost ? (
+                    <Pressable
+                      onPress={() => triggerRedeem(birthdayCost, 'birthday')}
                       style={styles.btnRedeemActive}
                     >
                       <Text style={styles.btnRedeemText}>Redeem</Text>
@@ -153,9 +216,16 @@ const handleRedeemBirthday = () => {
                   {/* Points activation logic */}
                   <View style={styles.rewardRowBottom}>
                     <Text style={styles.rewardPoints}>90 Point</Text>
-                    {points >= ramenCost ? (
+                    {isFreeRamenApplied ? (
                       <Pressable
-                        onPress={handleRedeemBirthday}
+                        onPress={() => triggerCancel(ramenCost, 'ramen')}
+                        style={styles.btnRowRedeemApplied}
+                      >
+                        <Text style={styles.btnRedeemAppliedText}>Remove</Text>
+                      </Pressable>
+                    ) : points >= ramenCost ? (
+                      <Pressable
+                        onPress={() => triggerRedeem(ramenCost, 'ramen')}
                         style={styles.btnRowRedeem}
                       >
                         <Text style={styles.btnRedeemText}>Redeem</Text>
@@ -239,6 +309,97 @@ const handleRedeemBirthday = () => {
 
         </ScrollView>
       </View>
+
+      {/* CONFIRM REDEEM MODAL */}
+      <Modal
+        visible={showRedeemConfirm}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowRedeemConfirm(false)}
+      >
+        <View style={styles.bottomSheetOverlay}>
+          <Pressable
+            style={styles.bottomSheetBackdrop}
+            onPress={() => setShowRedeemConfirm(false)}
+          />
+          <View style={styles.bottomSheetContainer}>
+            <Pressable
+              onPress={() => setShowRedeemConfirm(false)}
+              style={styles.bottomSheetCloseButton}
+            >
+              <Icon name="close" size={24} color="#999999" />
+            </Pressable>
+            
+            <Text style={styles.bottomSheetTitle}>
+              Are you sure you want to redeem this?
+            </Text>
+            <Text style={styles.bottomSheetSubtitle}>
+              Once you have made the exchange, it can be canceled.
+            </Text>
+
+            <View style={styles.bottomSheetButtonRow}>
+              <Pressable
+                onPress={() => setShowRedeemConfirm(false)}
+                style={styles.btnBottomSheetCancel}
+              >
+                <Text style={styles.btnBottomSheetCancelText}>Cancel</Text>
+              </Pressable>
+              <Pressable
+                onPress={handleConfirmRedeem}
+                style={styles.btnBottomSheetConfirm}
+              >
+                <Text style={styles.btnBottomSheetConfirmText}>Yes, Redeem</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* CONFIRM CANCEL MODAL */}
+      <Modal
+        visible={showCancelConfirm}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowCancelConfirm(false)}
+      >
+        <View style={styles.bottomSheetOverlay}>
+          <Pressable
+            style={styles.bottomSheetBackdrop}
+            onPress={() => setShowCancelConfirm(false)}
+          />
+          <View style={styles.bottomSheetContainer}>
+            <Pressable
+              onPress={() => setShowCancelConfirm(false)}
+              style={styles.bottomSheetCloseButton}
+            >
+              <Icon name="close" size={24} color="#999999" />
+            </Pressable>
+            
+            <Text style={styles.bottomSheetTitle}>
+              Do you really want to cancel this exchange?
+            </Text>
+            <Text style={styles.bottomSheetSubtitle}>
+              When you cancel the redemption, the redemption points will be refunded
+            </Text>
+
+            <View style={styles.bottomSheetButtonRow}>
+              <Pressable
+                onPress={handleConfirmCancel}
+                style={styles.btnBottomSheetConfirm}
+              >
+                <Text style={styles.btnBottomSheetConfirmText}>Yes, Cancel</Text>
+              </Pressable>
+              <Pressable
+                onPress={() => setShowCancelConfirm(false)}
+                style={styles.btnBottomSheetCancel}
+              >
+                <Text style={styles.btnBottomSheetCancelText}>Cancel</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
     </View>
   );
 };
@@ -246,11 +407,11 @@ const handleRedeemBirthday = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#C18F58',
+    backgroundColor: '#B37648',
   },
 
   headerBanner: {
-    backgroundColor: '#C18F58',
+    backgroundColor: '#B37648',
     paddingTop: 45,
     paddingBottom: 24,
   },
@@ -426,6 +587,35 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
 
+  // Applied Redeem Button Styles
+  btnRedeemApplied: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#8B1D1D',
+    height: 36,
+    borderRadius: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+  },
+
+  btnRedeemAppliedText: {
+    color: '#8B1D1D',
+    fontSize: 13,
+    fontWeight: '700',
+  },
+
+  btnRowRedeemApplied: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#8B1D1D',
+    paddingHorizontal: 16,
+    height: 32,
+    borderRadius: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
   rewardCardRow: {
     flexDirection: 'row',
     borderWidth: 1,
@@ -503,6 +693,99 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+
+  // Bottom Sheet Modal Styles
+  bottomSheetOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 1000,
+    justifyContent: 'flex-end',
+  },
+
+  bottomSheetBackdrop: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.45)',
+  },
+
+  bottomSheetContainer: {
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingHorizontal: 24,
+    paddingTop: 24,
+    paddingBottom: 36,
+  },
+
+  bottomSheetCloseButton: {
+    position: 'absolute',
+    top: 16,
+    right: 24,
+    padding: 4,
+    zIndex: 10,
+  },
+
+  bottomSheetTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#171717',
+    marginTop: 20,
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+
+  bottomSheetSubtitle: {
+    fontSize: 14,
+    color: '#888888',
+    textAlign: 'center',
+    lineHeight: 20,
+    marginBottom: 28,
+    paddingHorizontal: 20,
+  },
+
+  bottomSheetButtonRow: {
+    flexDirection: 'row',
+    gap: 12,
+    width: '100%',
+  },
+
+  btnBottomSheetCancel: {
+    flex: 1,
+    height: 44,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#CCCCCC',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FFFFFF',
+  },
+
+  btnBottomSheetCancelText: {
+    color: '#171717',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+
+  btnBottomSheetConfirm: {
+    flex: 1,
+    height: 44,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#8B1D1D',
+  },
+
+  btnBottomSheetConfirmText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '700',
   },
 });
 

@@ -31,7 +31,15 @@ interface MenuTemplateProps {
     isEditModal: boolean;
     isAddMenuModal: boolean;
     selectedMenu: any | null;
-
+    outletInfo?: {
+        name?: string;
+        logo?: string;
+        open_time?: string;
+        close_time?: string;
+    };
+    tableInfo?: {
+        name?: string;
+    };
 
     onSearch: () => void;
     onCloseSearch: () => void;
@@ -88,8 +96,8 @@ const MenuTemplate = ({
     totalPrice,
     isAddMenuModal,
     selectedMenu,
-    
-
+    outletInfo,
+    tableInfo,
 
     onSearch,
     onCheckout,
@@ -135,9 +143,14 @@ const MenuTemplate = ({
                     contentContainerStyle={styles.scrollContent}
                 >
 
-                    <RestaurantInfo />
+                    <RestaurantInfo
+                        name={outletInfo?.name}
+                        openTime={outletInfo?.open_time}
+                        closeTime={outletInfo?.close_time}
+                        logo={outletInfo?.logo}
+                    />
                     <TableInfo
-                        tableNumber="A2"
+                        tableNumber={tableInfo?.name || 'A2'}
                     />
                     <CategoryNavigation
                         activeCategory={activeCategory}

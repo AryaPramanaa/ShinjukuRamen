@@ -7,13 +7,16 @@ import {
   View,
 } from 'react-native';
 
+import DefaultFoodImage from '../atoms/DefaultFoodImage';
+
 interface RewardItemProps {
   title: string;
   description: string;
   points: number;
   image?: string;
   discountText?: string;
-  onRedeem: () => void;
+  isRedeemed?: boolean;
+  onRedeem?: () => void;
 }
 
 const RewardItem = ({
@@ -22,6 +25,7 @@ const RewardItem = ({
   points,
   image,
   discountText,
+  isRedeemed,
   onRedeem,
 }: RewardItemProps) => {
   const formatPoints = (pts: number) => {
@@ -33,10 +37,12 @@ const RewardItem = ({
       {/* IMAGE OR DISCOUNT BLOCK */}
       {image ? (
         <Image source={{ uri: image }} style={styles.image} />
-      ) : (
+      ) : discountText ? (
         <View style={styles.discountContainer}>
           <Text style={styles.discountText}>{discountText}</Text>
         </View>
+      ) : (
+        <DefaultFoodImage width={64} height={64} borderRadius={8} />
       )}
 
       {/* CONTENT */}

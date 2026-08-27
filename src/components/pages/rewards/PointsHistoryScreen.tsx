@@ -7,13 +7,9 @@ type PointsHistoryRouteProp = RouteProp<RootStackParamList, 'PointsHistory'>;
 
 const PointsHistoryScreen = () => {
   const navigation = useNavigation();
-  const route = useRoute<PointsHistoryRouteProp>();
-
-  const points = route.params?.points ?? 90;
 
   return (
     <PointsHistory
-      points={points}
       onBack={() => navigation.goBack()}
     />
   );

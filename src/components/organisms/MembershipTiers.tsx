@@ -5,6 +5,7 @@ import {
   StyleSheet,
   Text,
   View,
+  Image,
 } from 'react-native';
 import Icon from '../atoms/Icon';
 
@@ -29,22 +30,22 @@ const MembershipTiers = ({
     switch (tier) {
       case 'silver':
         return {
-          bg: '#9EA6B2',
+          bg: '#8E9AA6',
           badgeBg: '#78716C',
-          cardBg: '#8C93A0',
+          cardBg: '#9EACB8',
         };
       case 'gold':
         return {
-          bg: '#E2AE25',
+          bg: '#C59E27',
           badgeBg: '#CA8A04',
-          cardBg: '#D49E1B',
+          cardBg: '#D1AB38',
         };
       case 'bronze':
       default:
         return {
-          bg: '#C18F58',
+          bg: '#B37648',
           badgeBg: '#A16207',
-          cardBg: '#C18F58',
+          cardBg: '#B88056',
         };
     }
   };
@@ -63,59 +64,21 @@ const MembershipTiers = ({
     }
   };
 
-  // Renders 3D hexagon badge using rotated rounded rectangles
+  // Renders 3D hexagon badge using loaded assets
   const renderHexBadge = (tier: Tier, isCenter: boolean) => {
     const size = isCenter ? 110 : 44;
-    const innerSize = size * 0.82;
-
-    const colors = {
-      bronze: {
-        outer: '#D1A172',
-        inner: '#8E5728',
-      },
-      silver: {
-        outer: '#CBD2DB',
-        inner: '#8C93A0',
-      },
-      gold: {
-        outer: '#FEDE6D',
-        inner: '#C88E10',
-      },
+    const imageSource = {
+      bronze: require('../../Assets/tier_bronze.png'),
+      silver: require('../../Assets/tier_silver.png'),
+      gold: require('../../Assets/tier_gold.png'),
     }[tier];
 
-    const outerRectStyle = {
-      width: size,
-      height: size / Math.sqrt(3),
-      position: 'absolute' as const,
-      borderRadius: size * 0.05,
-      backgroundColor: colors.outer,
-    };
-
-    const innerRectStyle = {
-      width: innerSize,
-      height: innerSize / Math.sqrt(3),
-      position: 'absolute' as const,
-      borderRadius: innerSize * 0.05,
-      backgroundColor: colors.inner,
-    };
-
     return (
-      <View style={{ width: size, height: size, justifyContent: 'center', alignItems: 'center', position: 'relative' }}>
-        {/* Concentric Outer Hexagon */}
-        <View style={[outerRectStyle, { transform: [{ rotate: '0deg' }] }]} />
-        <View style={[outerRectStyle, { transform: [{ rotate: '60deg' }] }]} />
-        <View style={[outerRectStyle, { transform: [{ rotate: '120deg' }] }]} />
-
-        {/* Concentric Inner Hexagon */}
-        <View style={{ width: innerSize, height: innerSize, justifyContent: 'center', alignItems: 'center', position: 'absolute' }}>
-          <View style={[innerRectStyle, { transform: [{ rotate: '0deg' }] }]} />
-          <View style={[innerRectStyle, { transform: [{ rotate: '60deg' }] }]} />
-          <View style={[innerRectStyle, { transform: [{ rotate: '120deg' }] }]} />
-          
-          {/* Central Tier Star */}
-          <Icon name="star" size={isCenter ? 48 : 16} color={colors.outer} />
-        </View>
-      </View>
+      <Image
+        source={imageSource}
+        style={{ width: size, height: size, borderRadius: size / 2 }}
+        resizeMode="contain"
+      />
     );
   };
 
@@ -217,22 +180,34 @@ const MembershipTiers = ({
           <View style={styles.dotsRow}>
             {/* Bronze Node */}
             <Pressable onPress={() => setActiveTier('bronze')} style={styles.progressDotWrapper}>
-              <View style={styles.progressDot}>
-                <View style={styles.progressDotInner} />
+              <View style={[styles.progressDot, { borderColor: '#E69E2E' }]}>
+                <View style={[styles.progressDotInner, { backgroundColor: '#E69E2E' }]} />
               </View>
             </Pressable>
 
             {/* Silver Node */}
             <Pressable onPress={() => setActiveTier('silver')} style={styles.progressDotWrapper}>
-              <View style={styles.progressDot}>
-                <View style={styles.progressDotInner} />
+              <View style={[
+                styles.progressDot, 
+                { borderColor: currentPoints >= 100 ? '#E69E2E' : '#CCCCCC' }
+              ]}>
+                <View style={[
+                  styles.progressDotInner, 
+                  { backgroundColor: currentPoints >= 100 ? '#E69E2E' : '#CCCCCC' }
+                ]} />
               </View>
             </Pressable>
 
             {/* Gold Node */}
             <Pressable onPress={() => setActiveTier('gold')} style={styles.progressDotWrapper}>
-              <View style={styles.progressDot}>
-                <View style={styles.progressDotInner} />
+              <View style={[
+                styles.progressDot, 
+                { borderColor: currentPoints >= 1000 ? '#E69E2E' : '#CCCCCC' }
+              ]}>
+                <View style={[
+                  styles.progressDotInner, 
+                  { backgroundColor: currentPoints >= 1000 ? '#E69E2E' : '#CCCCCC' }
+                ]} />
               </View>
             </Pressable>
           </View>
@@ -404,16 +379,16 @@ const styles = StyleSheet.create({
 
   progressTrackContainer: {
     width: '65%',
-    height: 20,
-    justifyContent: 'center',
+    height: 30,
     position: 'relative',
     marginTop: 10,
+    paddingHorizontal: 10,
   },
 
   trackLineContainer: {
     position: 'absolute',
-    left: 7,
-    right: 7,
+    left: 10,
+    right: 10,
     height: '100%',
     justifyContent: 'center',
   },
@@ -438,10 +413,12 @@ const styles = StyleSheet.create({
   dotsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    width: '100%',
     position: 'absolute',
     left: 0,
     right: 0,
+    top: 0,
+    bottom: 0,
+    alignItems: 'center',
   },
 
   progressDotWrapper: {
@@ -449,7 +426,6 @@ const styles = StyleSheet.create({
     height: 20,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: -8,
   },
 
   progressDot: {
@@ -460,14 +436,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: '#EAEAEA',
   },
 
   progressDotInner: {
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: '#E69E2E',
   },
 
   benefitsSheet: {

@@ -10,7 +10,7 @@ interface TableInfoProps {
 }
 
 const TableInfo = ({
-  tableNumber = 'A2',
+  tableNumber = '',
 }: TableInfoProps) => {
   return (
     <View style={styles.container}>

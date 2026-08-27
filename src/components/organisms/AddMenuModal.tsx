@@ -12,6 +12,7 @@ import {
 import MenuOption from '../molecules/MenuOption';
 import Icon from '../atoms/Icon';
 import QuantitySelector from '../molecules/QuantitySelector';
+import DefaultFoodImage from '../atoms/DefaultFoodImage';
 
 interface MenuItem {
     id: number;
@@ -272,15 +273,21 @@ const AddMenuModal = ({
                 >
                     <View style={styles.menuHeader}>
 
-                        <Image
-                            source={{
-                                uri: item.image,
-                            }}
-                            style={[
-                                styles.image,
-                                largeLayout && styles.largeImage,
-                            ]}
-                        />
+                        {item.image ? (
+                            <Image
+                                source={{ uri: item.image }}
+                                style={[
+                                    styles.image,
+                                    largeLayout && styles.largeImage,
+                                ]}
+                            />
+                        ) : (
+                            <DefaultFoodImage 
+                                width={largeLayout ? 155 : 82} 
+                                height={largeLayout ? 155 : 82} 
+                                borderRadius={largeLayout ? 8 : 7} 
+                            />
+                        )}
 
                         <View
                             style={[

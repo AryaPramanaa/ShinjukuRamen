@@ -5,16 +5,41 @@ import {
   View,
 } from 'react-native';
 
-const RestaurantInfo = () => {
+interface RestaurantInfoProps {
+  name?: string;
+  openTime?: string;
+  closeTime?: string;
+}
+
+const RestaurantInfo = ({
+  name,
+  openTime,
+  closeTime,
+}: RestaurantInfoProps) => {
+  const formatTime = (timeStr?: string) => {
+    if (!timeStr) return '';
+    const parts = timeStr.split(':');
+    if (parts.length >= 2) {
+      return `${parts[0]}:${parts[1]}`;
+    }
+    return timeStr;
+  };
+
+  const formattedHours = openTime && closeTime
+    ? `Open Today, ${formatTime(openTime)} - ${formatTime(closeTime)}`
+    : '';
+
   return (
     <View style={styles.container}>
-      <Text style={styles.restaurantName}>
-        Shinjuku Ramen
+      <Text style={styles.restaurantName} numberOfLines={2}>
+        {name || ''}
       </Text>
 
-      <Text style={styles.openText}>
-        Open Today, 10 AM - 10 PM
-      </Text>
+      {formattedHours ? (
+        <Text style={styles.openText}>
+          {formattedHours}
+        </Text>
+      ) : null}
     </View>
   );
 };

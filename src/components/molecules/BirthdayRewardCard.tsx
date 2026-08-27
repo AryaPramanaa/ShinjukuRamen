@@ -8,6 +8,21 @@ interface BirthdayRewardCardProps {
   onPress?: () => void;
 }
 
+const GreenCakeIcon = () => (
+  <View style={styles.cakeIconWrapperCustom}>
+    <View style={styles.candleRow}>
+      <View style={styles.candleLine} />
+      <View style={styles.candleLine} />
+      <View style={styles.candleLine} />
+    </View>
+    <View style={styles.cakeBody}>
+      <View style={styles.cakeLayer} />
+      <View style={styles.cakeLayer} />
+      <View style={styles.cakeLayer} />
+    </View>
+  </View>
+);
+
 const BirthdayRewardCard = ({ hasInfo, name, onPress }: BirthdayRewardCardProps) => {
   return (
     <Pressable onPress={onPress} style={styles.container}>
@@ -29,7 +44,7 @@ const BirthdayRewardCard = ({ hasInfo, name, onPress }: BirthdayRewardCardProps)
         <View style={styles.birthdayCard}>
           <View style={styles.birthdayContent}>
             <View style={styles.cakeIconContainer}>
-              <Icon name="gift-outline" size={24} color="#16A34A" />
+              <GreenCakeIcon />
             </View>
             <View style={styles.birthdayTexts}>
               <Text style={styles.birthdayTitle}>
@@ -108,6 +123,42 @@ const styles = StyleSheet.create({
   birthdaySubtitle: {
     fontSize: 12,
     color: '#999999',
+  },
+
+  cakeIconWrapperCustom: {
+    width: 28,
+    height: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  candleRow: {
+    flexDirection: 'row',
+    gap: 3,
+    marginBottom: 2,
+  },
+
+  candleLine: {
+    width: 2,
+    height: 5,
+    backgroundColor: '#16A34A',
+    borderRadius: 1,
+  },
+
+  cakeBody: {
+    width: 22,
+    height: 14,
+    backgroundColor: '#16A34A',
+    borderRadius: 3,
+    justifyContent: 'space-evenly',
+    paddingVertical: 1,
+  },
+
+  cakeLayer: {
+    height: 2,
+    backgroundColor: '#F0FDF4',
+    marginHorizontal: 2,
+    borderRadius: 1,
   },
 });
 

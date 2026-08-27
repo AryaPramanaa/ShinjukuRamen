@@ -4,7 +4,6 @@ import MainTabNavigator from './MainTabNavigation';
 import MenuScreen from '../components/pages/menu/MenuScreen';
 import SplashScreen from '../components/pages/splash/SplashScreen';
 import ClaimRewardsScreen from '../components/pages/rewards/ClaimRewardsScreen';
-import QRDisplayScreen from '../components/pages/rewards/QRDisplayScreen';
 import OrderSummaryScreen from '../components/pages/orders/OrderSummaryScreen';
 import RedeemPaymentScreen from '../components/pages/orders/RedeemPaymentScreen';
 import OrderReceiptScreen from '../components/pages/orders/OrderReceiptScreen';
@@ -55,10 +54,6 @@ const AppNavigator = () => {
       <Stack.Screen
         name="ClaimRewards"
         component={ClaimRewardsScreen}
-      />
-      <Stack.Screen
-        name="QRDisplay"
-        component={QRDisplayScreen}
       />
       <Stack.Screen
         name="OrderSummary"

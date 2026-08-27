@@ -150,6 +150,27 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '700',
   },
+
+  checkoutContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+
+  checkoutBadge: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    backgroundColor: '#84CC16', // Lime green
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 6,
+  },
+
+  checkoutBadgeText: {
+    color: '#FFFFFF',
+    fontSize: 10,
+    fontWeight: '700',
+  },
 });
 
 export default CartBar;

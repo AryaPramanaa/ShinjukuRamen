@@ -8,6 +8,8 @@ import {
 } from 'react-native';
 import QuantitySelector from './QuantitySelector';
 
+import DefaultFoodImage from '../atoms/DefaultFoodImage';
+
 interface CartItemProps {
   item: {
     id: number;
@@ -32,10 +34,14 @@ const CartItem = ({
   return (
     <View style={styles.container}>
 
-      <Image
-        source={{uri: item.image}}
-        style={styles.image}
-      />
+      {item.image ? (
+        <Image
+          source={{ uri: item.image }}
+          style={styles.image}
+        />
+      ) : (
+        <DefaultFoodImage width={50} height={50} borderRadius={6} />
+      )}
 
       <View style={styles.info}>
 
@@ -86,7 +92,7 @@ const CartItem = ({
 const styles = StyleSheet.create({
   container: {
     minHeight: 105,
-    marginHorizontal: 20,
+    marginHorizontal: 0,
     marginBottom: 12,
     padding: 10,
     borderWidth: 1,

@@ -20,21 +20,21 @@ export const ramenMenus = {
       id: 1,
       name: 'Special Shinjuku Ramen',
       price: 30,
-      image: 'https://example.com/ramen1.jpg',
+      image: 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=500',
     },
 
     {
       id: 2,
       name: 'Shinjuku Ramen',
       price: 28,
-      image: 'https://example.com/ramen2.jpg',
+      image: 'https://images.unsplash.com/photo-1617093727343-374698b1b08d?w=500',
     },
 
     {
       id: 3,
       name: 'Spicy Tonkotsu Ramen',
       price: 30,
-      image: 'https://example.com/ramen3.jpg',
+      image: 'https://images.unsplash.com/photo-1569058242253-92a9c755a0ec?w=500',
 
       noodles: [
         {

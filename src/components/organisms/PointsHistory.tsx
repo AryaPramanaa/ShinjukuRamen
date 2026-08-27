@@ -8,15 +8,40 @@ import {
 } from 'react-native';
 import Icon from '../atoms/Icon';
 
+import { useApp } from '../../context/AppContext';
+
 interface PointsHistoryProps {
-  points?: number;
   onBack: () => void;
 }
 
+const getTierTheme = (pts: number) => {
+  if (pts <= 100) {
+    return {
+      bg: '#B37648',
+      label: 'Bronze',
+      iconColor: '#B37648',
+    };
+  } else if (pts <= 1000) {
+    return {
+      bg: '#8E9AA6',
+      label: 'Silver',
+      iconColor: '#8E9AA6',
+    };
+  } else {
+    return {
+      bg: '#C59E27',
+      label: 'Gold',
+      iconColor: '#C59E27',
+    };
+  }
+};
+
 const PointsHistory = ({
-  points = 90,
   onBack,
 }: PointsHistoryProps) => {
+  const { points } = useApp();
+  const theme = getTierTheme(points);
+
   return (
     <View style={styles.container}>
       
@@ -32,10 +57,10 @@ const PointsHistory = ({
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         
         {/* TOP STATUS CARD */}
-        <View style={styles.statusCard}>
+        <View style={[styles.statusCard, { backgroundColor: theme.bg }]}>
           <View style={styles.tierPill}>
-            <Icon name="star" size={10} color="#C18F58" />
-            <Text style={styles.tierPillText}>Bronze</Text>
+            <Icon name="star" size={10} color={theme.iconColor} />
+            <Text style={[styles.tierPillText, { color: theme.iconColor }]}>{theme.label}</Text>
           </View>
           
           <Text style={styles.pointsText}>{points} Point</Text>
@@ -133,7 +158,7 @@ const styles = StyleSheet.create({
   },
 
   statusCard: {
-    backgroundColor: '#C18F58',
+    backgroundColor: '#B37648',
     borderRadius: 12,
     paddingVertical: 24,
     paddingHorizontal: 20,
@@ -153,7 +178,7 @@ const styles = StyleSheet.create({
   },
 
   tierPillText: {
-    color: '#C18F58',
+    color: '#B37648',
     fontSize: 10,
     fontWeight: '700',
   },

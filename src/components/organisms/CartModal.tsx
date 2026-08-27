@@ -78,14 +78,6 @@ const CartModal = ({
             <View style={styles.cartIconWrapper}>
               <Icon name="cart" size={20} color="#8B1D1D" />
             </View>
-
-            {totalQuantity > 0 && (
-              <View style={styles.badge}>
-                <Text style={styles.badgeText}>
-                  {totalQuantity}
-                </Text>
-              </View>
-            )}
           </View>
 
           <View style={styles.totalContainer}>
@@ -102,9 +94,18 @@ const CartModal = ({
             onPress={onCheckout}
             disabled={totalPrice === 0}
           >
-            <Text style={styles.checkoutText}>
-              Check Out
-            </Text>
+            <View style={styles.checkoutContent}>
+              <Text style={styles.checkoutText}>
+                Check Out
+              </Text>
+              {totalQuantity > 0 && (
+                <View style={styles.checkoutBadge}>
+                  <Text style={styles.checkoutBadgeText}>
+                    {totalQuantity}
+                  </Text>
+                </View>
+              )}
+            </View>
           </Pressable>
 
         </View>
@@ -251,6 +252,27 @@ const styles = StyleSheet.create({
   checkoutText: {
     color: '#FFFFFF',
     fontSize: 13,
+    fontWeight: '700',
+  },
+
+  checkoutContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+
+  checkoutBadge: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    backgroundColor: '#84CC16', // Lime green
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 6,
+  },
+
+  checkoutBadgeText: {
+    color: '#FFFFFF',
+    fontSize: 10,
     fontWeight: '700',
   },
 });

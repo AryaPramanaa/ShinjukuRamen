@@ -3,6 +3,8 @@ import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import Icon from '../atoms/Icon';
 import QuantitySelector from './QuantitySelector';
 
+import DefaultFoodImage from '../atoms/DefaultFoodImage';
+
 interface OrderSummaryItemProps {
   item: {
     id: number;
@@ -26,7 +28,11 @@ const OrderSummaryItem = ({
 }: OrderSummaryItemProps) => {
   return (
     <View style={styles.itemCard}>
-      <Image source={{ uri: item.image }} style={styles.itemImage} />
+      {item.image ? (
+        <Image source={{ uri: item.image }} style={styles.itemImage} />
+      ) : (
+        <DefaultFoodImage width={55} height={55} borderRadius={8} />
+      )}
 
       <View style={styles.itemDetails}>
         <View style={styles.itemHeaderRow}>

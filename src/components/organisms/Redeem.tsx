@@ -5,7 +5,10 @@ import {
   StyleSheet,
   Text,
   View,
+  Modal,
+  Image,
 } from 'react-native';
+import { useApp } from '../../context/AppContext';
 import Icon from '../atoms/Icon';
 import CustomerInfoModal from './CustomerInfoModal';
 
@@ -18,6 +21,7 @@ import PaymentProviderCard from '../molecules/PaymentProviderCard';
 import PromosBar from '../molecules/PromosBar';
 import ProcessPaymentModal from '../molecules/ProcessPaymentModal';
 import WelcomeMemberModal from '../molecules/WelcomeMemberModal';
+import PromoReminderModal from '../molecules/PromoReminderModal';
 
 interface RedeemProps {
   totalPrice: number;
@@ -25,13 +29,23 @@ interface RedeemProps {
   onPay: (paymentMethod: string, provider: string | null, customerInfo: any, simulateFailure: boolean) => void;
   onViewTier: () => void;
   onClaimRewards: () => void;
-  onHistoryPress: () => void;
-
-  // Birthday discount states
-  isBirthdayDiscountApplied?: boolean;
-  onRemoveBirthdayDiscount?: () => void;
-  isBirthdayActive?: boolean;
 }
+
+const GreenCakeIcon = () => (
+  <View style={styles.cakeIconWrapperCustom}>
+    <View style={styles.candleRow}>
+      <View style={styles.candleLine} />
+      <View style={styles.candleLine} />
+      <View style={styles.candleLine} />
+    </View>
+    <View style={styles.cakeBody}>
+      <View style={styles.cakeLayer} />
+      <View style={styles.cakeLayer} />
+      <View style={styles.cakeLayer} />
+    </View>
+  </View>
+);
+
 
 const Redeem = ({
   totalPrice,
@@ -40,10 +54,21 @@ const Redeem = ({
   onViewTier,
   onClaimRewards,
   onHistoryPress,
-  isBirthdayDiscountApplied = false,
   onRemoveBirthdayDiscount,
   isBirthdayActive = true,
 }: RedeemProps) => {
+  const {
+    points,
+    setPoints,
+    isBirthdayDiscountApplied: isAppliedFromContext,
+    setIsBirthdayDiscountApplied,
+    customerInfoData,
+    setCustomerInfoData,
+  } = useApp();
+
+  const isBirthdayDiscountApplied = isAppliedFromContext;
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+
   const [selectedMethod, setSelectedMethod] = useState<'online' | 'cashier'>('online');
   const [selectedProvider, setSelectedProvider] = useState<string | null>(null);
   
@@ -54,7 +79,7 @@ const Redeem = ({
     email: string;
     dob: string;
     pax: string;
-  } | null>(null);
+  } | null>(customerInfoData);
   
   const [isInfoModalVisible, setIsInfoModalVisible] = useState(false);
   const [isConfirmModalVisible, setIsConfirmModalVisible] = useState(false);
@@ -62,14 +87,29 @@ const Redeem = ({
   // Welcome modal states (Screenshot 1 & 2)
   const [isWelcomeModalVisible, setIsWelcomeModalVisible] = useState(false);
   const [isReturningMember, setIsReturningMember] = useState(true);
+  const [isPromoReminderVisible, setIsPromoReminderVisible] = useState(false);
 
   const hasCustomerInfo = customerInfo !== null;
   const isPayDisabled = selectedMethod === 'online' && !selectedProvider;
 
-  const handlePayPress = () => {
+  const proceedToPayment = () => {
     if (selectedMethod === 'cashier' || selectedProvider) {
       setIsConfirmModalVisible(true);
     }
+  };
+
+  const handlePayPress = () => {
+    if (!isBirthdayDiscountApplied) {
+      setIsPromoReminderVisible(true);
+    } else {
+      proceedToPayment();
+    }
+  };
+
+  const handleConfirmCancel = () => {
+    setPoints((prev) => prev + 20); // refund 20 points
+    setIsBirthdayDiscountApplied(false);
+    setShowCancelConfirm(false);
   };
 
   // Helper to check if entered Date of Birth matches today's Month and Day
@@ -122,22 +162,22 @@ const Redeem = ({
         {/* Points & Progress Card Molecule */}
         <RewardsPointsCard
           hasInfo={hasCustomerInfo}
-          points={isUserBirthday ? 90 : 0}
-          neededPoints={isUserBirthday ? 10 : 100}
+          points={hasCustomerInfo ? points : 0}
+          neededPoints={hasCustomerInfo ? (100 - points > 0 ? 100 - points : 0) : 100}
           nextTier="silver"
-          progressBarWidth={isUserBirthday ? '90%' : '0%'}
+          progressBarWidth={hasCustomerInfo ? `${(points / 100) * 100}%` : '0%'}
           onViewTier={onViewTier}
           onHistoryPress={onHistoryPress}
         />
 
         {/* Claimable Birthday Greeting OR Non-Birthday Claim Button */}
-        {hasCustomerInfo && isUserBirthday ? (
+        {hasCustomerInfo && isUserBirthday && !isBirthdayDiscountApplied ? (
           <BirthdayRewardCard
             hasInfo={hasCustomerInfo}
             name={customerInfo?.name}
             onPress={onClaimRewards}
           />
-        ) : (
+        ) : !isBirthdayDiscountApplied ? (
           <Pressable onPress={onClaimRewards} style={styles.claimRewardsCard}>
             <View style={styles.claimRewardsLeft}>
               <Text style={styles.giftIcon}>🎁</Text>
@@ -145,24 +185,47 @@ const Redeem = ({
             </View>
             <Icon name="chevron-forward" size={18} color="#555555" />
           </Pressable>
-        )}
+        ) : null}
 
         {/* Applied Birthday Reward Card with Delete Action */}
         {hasCustomerInfo && isBirthdayDiscountApplied && (
-          <View style={styles.appliedRewardCard}>
-            <View style={styles.appliedRewardLeft}>
-              <View style={styles.balloonIconBox}>
-                <Text style={styles.balloonIcon}>🎈</Text>
+          <View style={styles.combinedAppliedCard}>
+            {/* Top Part: Birthday Greeting */}
+            <Pressable onPress={onClaimRewards} style={styles.combinedAppliedHeader}>
+              <View style={styles.combinedAppliedHeaderLeft}>
+                <View style={styles.cakeIconContainer}>
+                  <GreenCakeIcon />
+                </View>
+                <View style={styles.combinedAppliedHeaderTexts}>
+                  <Text style={styles.combinedAppliedHeaderTitle}>
+                    Happy Birthday, {customerInfo?.name} 🎂🎉
+                  </Text>
+                  <Text style={styles.combinedAppliedHeaderSubtitle}>
+                    Enjoy a special birthday offer just for you!
+                  </Text>
+                </View>
               </View>
-              <View style={styles.appliedRewardTexts}>
-                <Text style={styles.appliedRewardTitle}>Birthday Discount</Text>
-                <Text style={styles.appliedRewardSubtitle}>Percentage Discount - 20%</Text>
-                <Text style={styles.appliedRewardPoints}>20 Point</Text>
-              </View>
-            </View>
-            <Pressable onPress={onRemoveBirthdayDiscount} style={styles.trashBtn}>
-              <Icon name="trash-outline" size={20} color="#DC2626" />
+              <Icon name="chevron-forward" size={20} color="#999999" />
             </Pressable>
+
+            {/* Divider */}
+            <View style={styles.combinedAppliedDivider} />
+
+            {/* Bottom Part: Applied Reward Item Details */}
+            <View style={styles.combinedAppliedBody}>
+              <Image 
+                source={{ uri: 'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=500' }} 
+                style={styles.combinedAppliedImage} 
+              />
+              <View style={styles.combinedAppliedBodyTexts}>
+                <Text style={styles.combinedAppliedBodyTitle}>Birthday Discount</Text>
+                <Text style={styles.combinedAppliedBodySubtitle}>Percentage Discount - 20%</Text>
+                <Text style={styles.combinedAppliedBodyPoints}>20 Point</Text>
+              </View>
+              <Pressable onPress={() => setShowCancelConfirm(true)} style={styles.combinedTrashBtn}>
+                <Icon name="trash-outline" size={20} color="#DC2626" />
+              </Pressable>
+            </View>
           </View>
         )}
 
@@ -289,6 +352,7 @@ const Redeem = ({
           const isReturning = data.name.toLowerCase().includes('amalia') || data.name.toLowerCase().includes('amal');
           setIsReturningMember(isReturning);
           setCustomerInfo(data);
+          setCustomerInfoData(data);
           setIsInfoModalVisible(false);
           setIsWelcomeModalVisible(true);
         }}
@@ -301,6 +365,21 @@ const Redeem = ({
         onClose={() => setIsWelcomeModalVisible(false)}
       />
 
+      <PromoReminderModal
+        visible={isPromoReminderVisible}
+        isReturningMember={isReturningMember}
+        name={customerInfo?.name || 'Member'}
+        onClose={() => setIsPromoReminderVisible(false)}
+        onSeePromos={() => {
+          setIsPromoReminderVisible(false);
+          onClaimRewards();
+        }}
+        onContinue={() => {
+          setIsPromoReminderVisible(false);
+          proceedToPayment();
+        }}
+      />
+
       <ProcessPaymentModal
         visible={isConfirmModalVisible}
         onClose={() => setIsConfirmModalVisible(false)}
@@ -309,6 +388,51 @@ const Redeem = ({
           onPay(selectedMethod, selectedProvider, customerInfo, simulateFailure);
         }}
       />
+
+      {/* CONFIRM CANCEL MODAL */}
+      <Modal
+        visible={showCancelConfirm}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowCancelConfirm(false)}
+      >
+        <View style={styles.bottomSheetOverlay}>
+          <Pressable
+            style={styles.bottomSheetBackdrop}
+            onPress={() => setShowCancelConfirm(false)}
+          />
+          <View style={styles.bottomSheetContainer}>
+            <Pressable
+              onPress={() => setShowCancelConfirm(false)}
+              style={styles.bottomSheetCloseButton}
+            >
+              <Icon name="close" size={24} color="#999999" />
+            </Pressable>
+            
+            <Text style={styles.bottomSheetTitle}>
+              Do you really want to cancel this exchange?
+            </Text>
+            <Text style={styles.bottomSheetSubtitle}>
+              When you cancel the redemption, the redemption points will be refunded
+            </Text>
+
+            <View style={styles.bottomSheetButtonRow}>
+              <Pressable
+                onPress={handleConfirmCancel}
+                style={styles.btnBottomSheetConfirm}
+              >
+                <Text style={styles.btnBottomSheetConfirmText}>Yes, Cancel</Text>
+              </Pressable>
+              <Pressable
+                onPress={() => setShowCancelConfirm(false)}
+                style={styles.btnBottomSheetCancel}
+              >
+                <Text style={styles.btnBottomSheetCancelText}>Cancel</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
 
     </View>
   );
@@ -435,7 +559,15 @@ const styles = StyleSheet.create({
     fontSize: 24,
   },
 
+  appliedRewardImage: {
+    width: 60,
+    height: 60,
+    borderRadius: 8,
+  },
+
   appliedRewardTexts: {
+    flex: 1,
+    marginLeft: 12,
     flexDirection: 'column',
   },
 
@@ -461,10 +593,10 @@ const styles = StyleSheet.create({
   trashBtn: {
     width: 36,
     height: 36,
-    borderRadius: 6,
-    borderWidth: 1.5,
-    borderColor: '#FEE2E2',
-    backgroundColor: '#FFF5F5',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E5E5E5',
+    backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -643,6 +775,238 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 14,
     fontWeight: '600',
+  },
+
+  // Bottom Sheet Modal Styles
+  bottomSheetOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 1000,
+    justifyContent: 'flex-end',
+  },
+
+  bottomSheetBackdrop: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.45)',
+  },
+
+  bottomSheetContainer: {
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingHorizontal: 24,
+    paddingTop: 24,
+    paddingBottom: 36,
+  },
+
+  bottomSheetCloseButton: {
+    position: 'absolute',
+    top: 16,
+    right: 24,
+    padding: 4,
+    zIndex: 10,
+  },
+
+  bottomSheetTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#171717',
+    marginTop: 20,
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+
+  bottomSheetSubtitle: {
+    fontSize: 14,
+    color: '#888888',
+    textAlign: 'center',
+    lineHeight: 20,
+    marginBottom: 28,
+    paddingHorizontal: 20,
+  },
+
+  bottomSheetButtonRow: {
+    flexDirection: 'row',
+    gap: 12,
+    width: '100%',
+  },
+
+  btnBottomSheetCancel: {
+    flex: 1,
+    height: 44,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#CCCCCC',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FFFFFF',
+  },
+
+  btnBottomSheetCancelText: {
+    color: '#171717',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+
+  btnBottomSheetConfirm: {
+    flex: 1,
+    height: 44,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#8B1D1D',
+  },
+
+  btnBottomSheetConfirmText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '700',
+  },
+
+  combinedAppliedCard: {
+    marginHorizontal: 20,
+    marginTop: 12,
+    borderWidth: 1,
+    borderColor: '#EEEEEE',
+    borderRadius: 12,
+    backgroundColor: '#FFFFFF',
+    overflow: 'hidden',
+  },
+
+  combinedAppliedHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 16,
+  },
+
+  combinedAppliedHeaderLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    marginRight: 10,
+  },
+
+  combinedAppliedHeaderTexts: {
+    flex: 1,
+  },
+
+  combinedAppliedHeaderTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#171717',
+    marginBottom: 2,
+  },
+
+  combinedAppliedHeaderSubtitle: {
+    fontSize: 12,
+    color: '#999999',
+  },
+
+  cakeIconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 8,
+    backgroundColor: '#F0FDF4',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+
+  combinedAppliedDivider: {
+    height: 1,
+    backgroundColor: '#EEEEEE',
+    marginHorizontal: 16,
+  },
+
+  combinedAppliedBody: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    gap: 12,
+  },
+
+  combinedAppliedImage: {
+    width: 60,
+    height: 60,
+    borderRadius: 8,
+  },
+
+  combinedAppliedBodyTexts: {
+    flex: 1,
+  },
+
+  combinedAppliedBodyTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#171717',
+    marginBottom: 2,
+  },
+
+  combinedAppliedBodySubtitle: {
+    fontSize: 11,
+    color: '#888888',
+    marginBottom: 4,
+  },
+
+  combinedAppliedBodyPoints: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#171717',
+  },
+
+  combinedTrashBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E5E5E5',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FFFFFF',
+  },
+
+  cakeIconWrapperCustom: {
+    width: 28,
+    height: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  candleRow: {
+    flexDirection: 'row',
+    gap: 3,
+    marginBottom: 2,
+  },
+
+  candleLine: {
+    width: 2,
+    height: 5,
+    backgroundColor: '#16A34A',
+    borderRadius: 1,
+  },
+
+  cakeBody: {
+    width: 22,
+    height: 14,
+    backgroundColor: '#16A34A',
+    borderRadius: 3,
+    justifyContent: 'space-evenly',
+    paddingVertical: 1,
+  },
+
+  cakeLayer: {
+    height: 2,
+    backgroundColor: '#F0FDF4',
+    marginHorizontal: 2,
+    borderRadius: 1,
   },
 });
 

@@ -4,7 +4,7 @@ import {
   Text,
   View,
 } from 'react-native';
-import MenuItem from '../molecules/MenuItem';
+import MenuItem from './MenuItem';
 
 interface MenuListProps {
   title: string;

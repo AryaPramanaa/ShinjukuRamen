@@ -8,6 +8,8 @@ import {
 } from 'react-native';
 import QuantitySelector from '../molecules/QuantitySelector';
 
+import DefaultFoodImage from '../atoms/DefaultFoodImage';
+
 interface MenuItemProps {
   image: string;
   name: string;
@@ -38,10 +40,14 @@ const MenuItem = ({
     ]}>
 
       {/* IMAGE */}
-      <Image
-        source={{ uri: image }}
-        style={styles.image}
-      />
+      {image ? (
+        <Image
+          source={{ uri: image }}
+          style={styles.image}
+        />
+      ) : (
+        <DefaultFoodImage width={58} height={58} borderRadius={8} />
+      )}
 
       {/* CONTENT */}
       <View style={styles.content}>

@@ -31,6 +31,10 @@ interface AppContextType {
   setPointsPropsData: (data: any | null) => void;
   isBirthdayDiscountApplied: boolean;
   setIsBirthdayDiscountApplied: (val: boolean) => void;
+  isFreeRamenApplied: boolean;
+  setIsFreeRamenApplied: (val: boolean) => void;
+  points: number;
+  setPoints: React.Dispatch<React.SetStateAction<number>>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -46,6 +50,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [changeAmount, setChangeAmount] = useState<number | null>(null);
   const [pointsPropsData, setPointsPropsData] = useState<any | null>(null);
   const [isBirthdayDiscountApplied, setIsBirthdayDiscountApplied] = useState(false);
+  const [isFreeRamenApplied, setIsFreeRamenApplied] = useState(false);
+  const [points, setPoints] = useState(90);
 
   return (
     <AppContext.Provider
@@ -70,6 +76,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setPointsPropsData,
         isBirthdayDiscountApplied,
         setIsBirthdayDiscountApplied,
+        isFreeRamenApplied,
+        setIsFreeRamenApplied,
+        points,
+        setPoints,
       }}
     >
       {children}

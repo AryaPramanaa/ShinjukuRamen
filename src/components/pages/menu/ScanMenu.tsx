@@ -58,7 +58,6 @@ const ScanMenu = () => {
         isScanning={isScanning}
       />
 
-      {/* Modal Notifikasi Rounded */}
       <Modal
         visible={showErrorModal}
         transparent
@@ -67,7 +66,6 @@ const ScanMenu = () => {
       >
         <View style={styles.modalBackdrop}>
           <View style={styles.modalCard}>
-            {/* Icon Warning */}
             <View style={styles.iconCircle}>
               <Icon name="alert-circle-outline" size={38} color="#8B1D1D" />
             </View>
@@ -78,7 +76,7 @@ const ScanMenu = () => {
             </Text>
 
             <Button
-              title="Scan Ulang"
+              title="Rescan"
               variant="primary"
               onPress={handleRetryScan}
               style={styles.actionButton}

@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { useApp } from '../../../context/AppContext';
 import MenuTemplate from '../../templates/MenuTemplate';
+import { getOrderInfoApi, OutletInfo, TableInfoData } from '../../../apis/order';
 import {
   ramenCategories,
   ramenMenus,
@@ -34,6 +35,28 @@ const MenuScreen = () => {
   const [isCategoryModal, setIsCategoryModal] = useState(false);
   const [isAddMenuModal, setIsAddMenuModal] = useState(false);
   const [selectedMenu, setSelectedMenu] = useState<any | null>(null);
+
+  const [outletInfo, setOutletInfo] = useState<OutletInfo | undefined>(undefined);
+  const [tableInfo, setTableInfo] = useState<TableInfoData | undefined>(undefined);
+
+  useEffect(() => {
+    const fetchOrderInfo = async () => {
+      try {
+        const response = await getOrderInfoApi({
+          outlet_id: 'cmlqs8mip0000kgtt14z7csfb',
+          table_id: 'cmlqs8naj008skgtthxor0re6',
+        });
+        if (response?.success && response?.data) {
+          setOutletInfo(response.data.outlet);
+          setTableInfo(response.data.table);
+        }
+      } catch (error) {
+        console.log('Error fetching order info:', error);
+      }
+    };
+
+    fetchOrderInfo();
+  }, []);
 
   const getMenus = () => {
     if (activeCategory === 'Ramen') {
@@ -306,6 +329,8 @@ const MenuScreen = () => {
 
   return (
     <MenuTemplate
+      outletInfo={outletInfo}
+      tableInfo={tableInfo}
       isSearch={isSearch}
       searchText={searchText}
       activeCategory={activeCategory}

@@ -38,10 +38,7 @@ const MenuItem = ({
     ]}>
 
       {/* IMAGE */}
-      <Image
-        source={{ uri: image }}
-        style={styles.image}
-      />
+      {/* Fallback image removed */}
 
       {/* CONTENT */}
       <View style={styles.content}>

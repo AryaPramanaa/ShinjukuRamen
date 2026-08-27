@@ -1,30 +1,53 @@
-import React from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View, Image } from 'react-native';
 import Icon from '../atoms/Icon';
 
 interface RewardsPointsCardProps {
   hasInfo: boolean;
   points?: number;
-  neededPoints?: number;
-  nextTier?: string;
-  progressBarWidth?: string;
   onViewTier: () => void;
   onHistoryPress?: () => void;
   isTransparentMode?: boolean;
   hideTitle?: boolean;
 }
 
+const getTierTheme = (pts: number) => {
+  if (pts <= 100) {
+    return {
+      bg: '#B37648', // Bronze copper
+      image: require('../../Assets/tier_bronze.png'),
+      next: 'silver',
+      needed: 100 - pts > 0 ? 100 - pts : 0,
+      progress: `${Math.max(0, Math.min(100, (pts / 100) * 100))}%`,
+    };
+  } else if (pts <= 1000) {
+    return {
+      bg: '#8E9AA6', // Silver-gray
+      image: require('../../Assets/tier_silver.png'),
+      next: 'gold',
+      needed: 1000 - pts > 0 ? 1000 - pts : 0,
+      progress: `${Math.max(0, Math.min(100, ((pts - 100) / 900) * 100))}%`,
+    };
+  } else {
+    return {
+      bg: '#C59E27', // Gold-yellow
+      image: require('../../Assets/tier_gold.png'),
+      next: 'none',
+      needed: 0,
+      progress: '100%',
+    };
+  }
+};
+
 const RewardsPointsCard = ({
   hasInfo,
   points = 90,
-  neededPoints = 10,
-  nextTier = 'silver',
-  progressBarWidth = '90%',
   onViewTier,
   onHistoryPress,
   isTransparentMode = false,
   hideTitle = false,
 }: RewardsPointsCardProps) => {
+  const theme = getTierTheme(points);
+
   return (
     <View style={[styles.container, hideTitle && styles.containerNoTitle]}>
       {!hideTitle && <Text style={styles.sectionTitle}>Your Rewards</Text>}
@@ -48,15 +71,25 @@ const RewardsPointsCard = ({
 
           <Pressable onPress={onViewTier} style={styles.emptyTierLinkRow}>
             <View style={styles.tierLinkLabel}>
-              <Text style={styles.coinIcon}>🥉</Text>
+              <Image 
+                source={require('../../Assets/tier_bronze.png')} 
+                style={styles.tierMedalIcon} 
+              />
               <Text style={styles.emptyTierLinkText}>View Tier</Text>
             </View>
             <Icon name="chevron-forward" size={16} color="#999999" />
           </Pressable>
         </View>
       ) : (
-        /* Active Gold Rewards Card */
-        <Pressable onPress={onViewTier} style={[styles.rewardsCard, isTransparentMode && styles.transparentRewardsCard]}>
+        /* Active Rewards Card */
+        <Pressable 
+          onPress={onViewTier} 
+          style={[
+            styles.rewardsCard, 
+            { backgroundColor: theme.bg },
+            isTransparentMode && styles.transparentRewardsCard
+          ]}
+        >
           <View style={styles.rewardsHeader}>
             <Text style={styles.pointsText}>{points} Point</Text>
             <Pressable onPress={onHistoryPress} style={styles.historyBtn}>
@@ -65,17 +98,23 @@ const RewardsPointsCard = ({
           </View>
           
           <Text style={styles.tierStatus}>
-            You need {neededPoints} points to reach the {nextTier} tier
+            {theme.next === 'none' 
+              ? 'You have achieved Gold Tier!' 
+              : `You need ${theme.needed} points to reach the ${theme.next} tier`
+            }
           </Text>
           
           {/* Progress Bar */}
           <View style={styles.progressBarContainer}>
-            <View style={[styles.progressBarFilled, { width: progressBarWidth }]} />
+            <View style={[styles.progressBarFilled, { width: theme.progress as any }]} />
           </View>
 
           <View style={styles.tierLinkRow}>
             <View style={styles.tierLinkLabel}>
-              <Text style={styles.coinIcon}>🥉</Text>
+              <Image 
+                source={theme.image} 
+                style={styles.tierMedalIcon} 
+              />
               <Text style={styles.tierLinkText}>View Your Tier</Text>
             </View>
             <Icon name="chevron-forward" size={16} color="#FFFFFF" />
@@ -166,9 +205,13 @@ const styles = StyleSheet.create({
 
   /* Active Rewards Card */
   rewardsCard: {
-    backgroundColor: '#C18F58',
     borderRadius: 12,
     padding: 16,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
   },
 
   transparentRewardsCard: {
@@ -238,8 +281,9 @@ const styles = StyleSheet.create({
     gap: 8,
   },
 
-  coinIcon: {
-    fontSize: 14,
+  tierMedalIcon: {
+    width: 20,
+    height: 20,
   },
 
   tierLinkText: {

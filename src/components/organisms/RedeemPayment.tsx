@@ -355,7 +355,7 @@ const styles = StyleSheet.create({
   },
 
   rewardsCard: {
-    backgroundColor: '#C18F58',
+    backgroundColor: '#B37648',
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
