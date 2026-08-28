@@ -1,13 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import Icon from '../atoms/Icon';
 import QuantitySelector from './QuantitySelector';
-
 import DefaultFoodImage from '../atoms/DefaultFoodImage';
 
 interface OrderSummaryItemProps {
   item: {
-    id: number;
+    cartItemId?: string;
+    id: number | string;
     name: string;
     price: number;
     image: string;
@@ -15,8 +15,8 @@ interface OrderSummaryItemProps {
     note: string;
     optionsText?: string;
   };
-  onIncrease: (id: number) => void;
-  onDecrease: (id: number) => void;
+  onIncrease: (cartItemIdOrId: any) => void;
+  onDecrease: (cartItemIdOrId: any) => void;
   onEdit: (item: any) => void;
 }
 
@@ -26,10 +26,17 @@ const OrderSummaryItem = ({
   onDecrease,
   onEdit,
 }: OrderSummaryItemProps) => {
+  const [imageError, setImageError] = useState(false);
+  const targetId = item.cartItemId || item.id;
+
   return (
     <View style={styles.itemCard}>
-      {item.image ? (
-        <Image source={{ uri: item.image }} style={styles.itemImage} />
+      {item.image && !imageError ? (
+        <Image
+          source={{ uri: item.image }}
+          style={styles.itemImage}
+          onError={() => setImageError(true)}
+        />
       ) : (
         <DefaultFoodImage width={55} height={55} borderRadius={8} />
       )}
@@ -61,8 +68,8 @@ const OrderSummaryItem = ({
 
           <QuantitySelector
             quantity={item.quantity}
-            onIncrease={() => onIncrease(item.id)}
-            onDecrease={() => onDecrease(item.id)}
+            onIncrease={() => onIncrease(targetId)}
+            onDecrease={() => onDecrease(targetId)}
           />
         </View>
       </View>
@@ -72,7 +79,6 @@ const OrderSummaryItem = ({
 
 const styles = StyleSheet.create({
   itemCard: {
-    marginHorizontal: 20,
     marginBottom: 12,
     padding: 12,
     borderWidth: 1,
@@ -104,46 +110,46 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '600',
     color: '#171717',
-    marginRight: 10,
+    marginRight: 8,
   },
 
   edit: {
     fontSize: 13,
-    color: '#2563EB',
+    color: '#991B1B',
+    fontWeight: '500',
   },
 
   optionsText: {
+    marginTop: 2,
     fontSize: 12,
-    color: '#A0A0A0',
-    marginTop: 4,
-    lineHeight: 16,
+    color: '#6B7280',
   },
 
   noteRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 6,
+    marginTop: 4,
+    marginBottom: 8,
     gap: 4,
   },
 
   note: {
-    flex: 1,
     fontSize: 12,
     color: '#A0A0A0',
-    marginLeft: 4,
+    flex: 1,
   },
 
   itemBottom: {
-    marginTop: 10,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginTop: 4,
   },
 
   price: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#222222',
+    color: '#171717',
   },
 });
 

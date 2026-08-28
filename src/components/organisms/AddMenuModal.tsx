@@ -52,12 +52,14 @@ const AddMenuModal = ({
     const [modifiers, setModifiers] = useState<ItemModifier[]>([]);
     const [selectedVariants, setSelectedVariants] = useState<Record<string, string[]>>({});
     const [loading, setLoading] = useState(false);
+    const [imageError, setImageError] = useState(false);
 
     useEffect(() => {
         if (visible && item) {
             setQuantity(1);
             setNote('');
             setSelectedVariants({});
+            setImageError(false);
 
             if (Array.isArray(item.modifiers) && item.modifiers.length > 0) {
                 setModifiers(item.modifiers);
@@ -87,11 +89,7 @@ const AddMenuModal = ({
     const initDefaultSelections = (mods: ItemModifier[]) => {
         const initialSelections: Record<string, string[]> = {};
         mods.forEach(mod => {
-            if (mod.type === 'single' && Array.isArray(mod.variants) && mod.variants.length > 0) {
-                initialSelections[mod.id] = [mod.variants[0].id];
-            } else {
-                initialSelections[mod.id] = [];
-            }
+            initialSelections[mod.id] = [];
         });
         setSelectedVariants(initialSelections);
     };
@@ -125,6 +123,21 @@ const AddMenuModal = ({
         });
     };
 
+    const isAllRequiredModifiersSelected = (): boolean => {
+        if (modifiers.length === 0) return true;
+
+        return modifiers.every(mod => {
+            const selectedIds = selectedVariants[mod.id] || [];
+            const isRequiredGroup = mod.type === 'single' || mod.is_required || (mod.min_selection && mod.min_selection > 0);
+            if (isRequiredGroup) {
+                return selectedIds.length > 0;
+            }
+            return true;
+        });
+    };
+
+    const isAddDisabled = !isAllRequiredModifiersSelected();
+
     let totalAdditionalPrice = 0;
     const selectedVariantNames: string[] = [];
 
@@ -155,6 +168,8 @@ const AddMenuModal = ({
     };
 
     const handleAdd = () => {
+        if (isAddDisabled) return;
+
         onAdd(
             item,
             quantity,
@@ -205,13 +220,14 @@ const AddMenuModal = ({
                     contentContainerStyle={styles.scrollContent}
                 >
                     <View style={styles.menuHeader}>
-                        {item.image ? (
+                        {item.image && !imageError ? (
                             <Image
                                 source={{ uri: item.image }}
                                 style={[
                                     styles.image,
                                     largeLayout && styles.largeImage,
                                 ]}
+                                onError={() => setImageError(true)}
                             />
                         ) : (
                             <DefaultFoodImage 
@@ -302,7 +318,11 @@ const AddMenuModal = ({
                 <View style={styles.footer}>
                     <Pressable
                         onPress={handleAdd}
-                        style={styles.addButton}
+                        style={[
+                            styles.addButton,
+                            isAddDisabled ? styles.addButtonDisabled : styles.addButtonActive,
+                        ]}
+                        disabled={isAddDisabled}
                     >
                         <Text style={styles.addText}>
                             Add Menu ( $ {totalPrice.toFixed(2)} )
@@ -474,9 +494,16 @@ const styles = StyleSheet.create({
         width: '100%',
         height: 48,
         borderRadius: 8,
-        backgroundColor: '#B91C1C',
         alignItems: 'center',
         justifyContent: 'center',
+    },
+
+    addButtonActive: {
+        backgroundColor: '#B91C1C',
+    },
+
+    addButtonDisabled: {
+        backgroundColor: '#A3A3A3',
     },
 
     addText: {

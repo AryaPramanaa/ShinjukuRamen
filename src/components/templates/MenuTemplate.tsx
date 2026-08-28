@@ -1,19 +1,15 @@
 import React from 'react';
-import {
-    ScrollView,
-    StyleSheet,
-    View,
-} from 'react-native';
-import MenuHeader from '../organisms/MenuHeader';
-import CategoryNavigation from '../organisms/CategoryNavigation';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import AddMenuModal from '../organisms/AddMenuModal';
+import CartBar from '../molecules/CartBar';
+import CartModal from '../organisms/CartModal';
 import CategoryModal from '../organisms/CategoryModal';
+import CategoryNavigation from '../organisms/CategoryNavigation';
+import MenuHeader from '../organisms/MenuHeader';
 import MenuList from '../organisms/MenuList';
 import RestaurantInfo from '../molecules/RestaurantInfo';
 import TableInfo from '../molecules/TableInfo';
-import CartBar from '../molecules/CartBar';
-import CartModal from '../organisms/CartModal';
-import EditMenuModal from '../organisms/EditMenuModal';
-import AddMenuModal from '../organisms/AddMenuModal';
+import Icon from '../atoms/Icon';
 
 interface MenuTemplateProps {
     isSearch: boolean;
@@ -21,81 +17,72 @@ interface MenuTemplateProps {
     activeCategory: string;
     activeRamenCategory: string | null;
     ramenCategories: string[];
-    menus: any[];
     isCategoryModal: boolean;
+    isAddMenuModal: boolean;
+    selectedMenu: any;
+    isCartModal: boolean;
     cart: any[];
+
     totalQuantity: number;
     totalPrice: number;
-    isCartModal: boolean;
-    selectedCartItem: any | null;
-    isEditModal: boolean;
-    isAddMenuModal: boolean;
-    selectedMenu: any | null;
+    menus: any[];
     outletInfo?: {
-        name?: string;
-        logo?: string;
+        name: string;
         open_time?: string;
         close_time?: string;
     };
     tableInfo?: {
-        name?: string;
+        name: string;
     };
 
     onSearch: () => void;
+    onCheckout: () => void;
     onCloseSearch: () => void;
     onChangeSearch: (text: string) => void;
     onClearSearch: () => void;
     onOpenCategory: () => void;
-    onSelectRamenCategory: (
-        category: string,
-    ) => void;
+    onSelectRamenCategory: (category: string) => void;
     onCloseCategory: () => void;
-    onSelectCategory: (
-        category: string,
-    ) => void;
-    onAddItem: (item: any) => void;
-    onIncrease: (id: number) => void;
-    onDecrease: (id: number) => void;
-    getQuantity: (id: number) => number;
+    onSelectCategory: (category: string) => void;
+
+    onIncrease: (id: any) => void;
+    onDecrease: (id: any) => void;
+    getQuantity: (id: any) => number;
+
     onOpenCart: () => void;
     onCloseCart: () => void;
     onEditItem: (item: any) => void;
-    onUpdateNote: (
-        id: number,
-        note: string,
-    ) => void;
     onCloseEdit: () => void;
+    onUpdateNote: (note: string) => void;
+
     onCloseAddMenu: () => void;
     onAddFromModal: (
         item: any,
         quantity: number,
-        selectedOptions: {
-            noodles: number[];
-            broth: number[];
-            toppings: number[];
-        },
+        selectedOptions: Record<string, string[]>,
         additionalPrice: number,
         note: string,
+        optionsText: string,
     ) => void;
-    onCheckout: () => void;
+
+    onAddItem: (item: any) => void;
 }
 
 const MenuTemplate = ({
-    isCartModal,
-    isEditModal,
-    selectedCartItem,
     isSearch,
     searchText,
     activeCategory,
     activeRamenCategory,
     ramenCategories,
-    menus,
     isCategoryModal,
-    cart,
-    totalQuantity,
-    totalPrice,
     isAddMenuModal,
     selectedMenu,
+    isCartModal,
+    cart,
+
+    totalQuantity,
+    totalPrice,
+    menus,
     outletInfo,
     tableInfo,
 
@@ -114,17 +101,14 @@ const MenuTemplate = ({
     onOpenCart,
     onCloseCart,
     onEditItem,
-    onCloseEdit,
-    onUpdateNote,
     onCloseAddMenu,
     onAddFromModal,
     onAddItem,
-
 }: MenuTemplateProps) => {
+    const hasSearchQuery = searchText.trim().length > 0;
 
     return (
         <View style={styles.container}>
-
 
             <MenuHeader
                 isSearch={isSearch}
@@ -135,80 +119,110 @@ const MenuTemplate = ({
                 onClearSearch={onClearSearch}
             />
 
-
             <View style={styles.content}>
 
-                <ScrollView
-                    showsVerticalScrollIndicator={false}
-                    contentContainerStyle={styles.scrollContent}
-                >
-
-                    <RestaurantInfo
-                        name={outletInfo?.name}
-                        openTime={outletInfo?.open_time}
-                        closeTime={outletInfo?.close_time}
-                       
-                    />
-                    <TableInfo
-                        tableNumber={tableInfo?.name || 'A2'}
-                    />
-                    <CategoryNavigation
-                        activeCategory={activeCategory}
-                        activeRamenCategory={activeRamenCategory}
-                        ramenCategories={ramenCategories}
-                        onOpenCategory={onOpenCategory}
-                        onSelectRamenCategory={
-                            onSelectRamenCategory
-                        }
-                    />
-
-                    {activeCategory === 'Promo' ? (
-                        <>
-                            {menus.filter(item => item.category_group === 'Ramen').length > 0 && (
-                                <MenuList
-                                    title="Ramen"
-                                    subtitle={null}
-                                    menus={menus.filter(item => item.category_group === 'Ramen')}
-                                    onAddItem={onAddItem}
-                                    onIncrease={onIncrease}
-                                    onDecrease={onDecrease}
-                                    getQuantity={getQuantity}
-                                />
-                            )}
-
-                            {menus.filter(item => item.category_group === 'Drinks').length > 0 && (
-                                <MenuList
-                                    title="Drinks"
-                                    subtitle={null}
-                                    menus={menus.filter(item => item.category_group === 'Drinks')}
-                                    onAddItem={onAddItem}
-                                    onIncrease={onIncrease}
-                                    onDecrease={onDecrease}
-                                    getQuantity={getQuantity}
-                                />
-                            )}
-                        </>
-                    ) : (
-                        <MenuList
-                            title={
-                                activeCategory === 'Drink'
-                                    ? 'Drinks'
-                                    : activeCategory
-                            }
-                            subtitle={
-                                activeCategory === 'Ramen'
-                                    ? activeRamenCategory
-                                    : null
-                            }
-                            menus={menus}
-                            onAddItem={onAddItem}
-                            onIncrease={onIncrease}
-                            onDecrease={onDecrease}
-                            getQuantity={getQuantity}
+                {isSearch ? (
+                    <View style={styles.searchBody}>
+                        {!hasSearchQuery ? (
+                            <View style={styles.emptySearchSpace} />
+                        ) : menus.length === 0 ? (
+                            <View style={styles.noItemContainer}>
+                                <View style={styles.noItemCircle}>
+                                    <Icon name="search-outline" size={30} color="#CCCCCC" />
+                                </View>
+                                <Text style={styles.noItemText}>
+                                    No Item Found
+                                </Text>
+                            </View>
+                        ) : (
+                            <ScrollView
+                                showsVerticalScrollIndicator={false}
+                                contentContainerStyle={styles.scrollContent}
+                            >
+                                <View style={styles.searchListPadding}>
+                                    <MenuList
+                                        title=""
+                                        subtitle={null}
+                                        menus={menus}
+                                        onAddItem={onAddItem}
+                                        onIncrease={onIncrease}
+                                        onDecrease={onDecrease}
+                                        getQuantity={getQuantity}
+                                    />
+                                </View>
+                            </ScrollView>
+                        )}
+                    </View>
+                ) : (
+                    <ScrollView
+                        showsVerticalScrollIndicator={false}
+                        contentContainerStyle={styles.scrollContent}
+                    >
+                        <RestaurantInfo
+                            name={outletInfo?.name}
+                            openTime={outletInfo?.open_time}
+                            closeTime={outletInfo?.close_time}
                         />
-                    )}
 
-                </ScrollView>
+                        <TableInfo
+                            tableNumber={tableInfo?.name || 'A2'}
+                        />
+
+                        <CategoryNavigation
+                            activeCategory={activeCategory}
+                            activeRamenCategory={activeRamenCategory}
+                            ramenCategories={ramenCategories}
+                            onOpenCategory={onOpenCategory}
+                            onSelectRamenCategory={onSelectRamenCategory}
+                        />
+
+                        {activeCategory === 'Promo' ? (
+                            <>
+                                {menus.filter(item => item.category_group === 'Ramen').length > 0 && (
+                                    <MenuList
+                                        title="Ramen"
+                                        subtitle={null}
+                                        menus={menus.filter(item => item.category_group === 'Ramen')}
+                                        onAddItem={onAddItem}
+                                        onIncrease={onIncrease}
+                                        onDecrease={onDecrease}
+                                        getQuantity={getQuantity}
+                                    />
+                                )}
+
+                                {menus.filter(item => item.category_group === 'Drinks').length > 0 && (
+                                    <MenuList
+                                        title="Drinks"
+                                        subtitle={null}
+                                        menus={menus.filter(item => item.category_group === 'Drinks')}
+                                        onAddItem={onAddItem}
+                                        onIncrease={onIncrease}
+                                        onDecrease={onDecrease}
+                                        getQuantity={getQuantity}
+                                    />
+                                )}
+                            </>
+                        ) : (
+                            <MenuList
+                                title={
+                                    activeCategory === 'Drink'
+                                        ? 'Drinks'
+                                        : activeCategory
+                                }
+                                subtitle={
+                                    activeCategory === 'Ramen'
+                                        ? activeRamenCategory
+                                        : null
+                                }
+                                menus={menus}
+                                onAddItem={onAddItem}
+                                onIncrease={onIncrease}
+                                onDecrease={onDecrease}
+                                getQuantity={getQuantity}
+                            />
+                        )}
+                    </ScrollView>
+                )}
 
                 <AddMenuModal
                     visible={isAddMenuModal}
@@ -232,12 +246,12 @@ const MenuTemplate = ({
                 onSelectCategory={onSelectCategory}
             />
 
-            {!isCartModal && !isAddMenuModal && !isCategoryModal && (
+            {!isCartModal && !isAddMenuModal && !isCategoryModal && !isSearch && (
                 <CartBar
                     totalQuantity={totalQuantity}
                     totalPrice={totalPrice}
                     onCartPress={onOpenCart}
-                    onCheckout = {onCheckout}
+                    onCheckout={onCheckout}
                 />
             )}
 
@@ -252,14 +266,6 @@ const MenuTemplate = ({
                 onCheckout={onCheckout}
             />
 
-            <EditMenuModal
-                visible={isEditModal}
-                item={selectedCartItem}
-                onClose={onCloseEdit}
-                onIncrease={onIncrease}
-                onDecrease={onDecrease}
-                onUpdateNote={onUpdateNote}
-            />
         </View>
     );
 };
@@ -272,25 +278,55 @@ const styles = StyleSheet.create({
 
     content: {
         flex: 1,
-        marginTop: -15,
-        borderTopLeftRadius: 28,
-        borderTopRightRadius: 28,
         backgroundColor: '#FFFFFF',
-        overflow: 'hidden',
     },
 
     scrollContent: {
-        paddingBottom: 100,
+        paddingBottom: 110,
+    },
+
+    searchBody: {
+        flex: 1,
+        backgroundColor: '#FFFFFF',
+    },
+
+    emptySearchSpace: {
+        flex: 1,
+        backgroundColor: '#FFFFFF',
+    },
+
+    searchListPadding: {
+        paddingTop: 10,
+    },
+
+    noItemContainer: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#FFFFFF',
+        paddingBottom: 60,
+    },
+
+    noItemCircle: {
+        width: 56,
+        height: 56,
+        borderRadius: 28,
+        backgroundColor: '#F3F4F6',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: 12,
+    },
+
+    noItemText: {
+        fontSize: 15,
+        color: '#9CA3AF',
+        fontWeight: '500',
     },
 
     searchOverlay: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.45)',
-        zIndex: 10,
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: 'rgba(0,0,0,0.02)',
+        zIndex: 5,
     },
 });
 

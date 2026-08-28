@@ -16,8 +16,8 @@ interface OrderSummaryProps {
   totalPrice: number;
 
   onBack: () => void;
-  onIncrease: (id: number) => void;
-  onDecrease: (id: number) => void;
+  onIncrease: (cartItemIdOrId: any) => void;
+  onDecrease: (cartItemIdOrId: any) => void;
   onEditItem: (item: any) => void;
   onContinuePayment: () => void;
 }
@@ -64,7 +64,7 @@ const OrderSummary = ({
             Ordered Items ({totalQuantity})
           </Text>
 
-          <Pressable style={styles.addButton}>
+          <Pressable style={styles.addButton} onPress={onBack}>
             <Text style={styles.addButtonText}>
               ＋ Add
             </Text>
@@ -72,9 +72,9 @@ const OrderSummary = ({
         </View>
 
         {/* CART ITEMS */}
-        {cart.map(item => (
+        {cart.map((item, index) => (
           <OrderSummaryItem
-            key={item.id}
+            key={item.cartItemId || item.uniqueCartKey || `${item.id}-${index}`}
             item={item}
             onIncrease={onIncrease}
             onDecrease={onDecrease}
@@ -96,7 +96,7 @@ const OrderSummary = ({
 
       </ScrollView>
 
-      {/* PAYMENT */}
+      {/* PAYMENT BAR */}
       <View style={styles.paymentBar}>
 
         <View>
@@ -158,15 +158,15 @@ const styles = StyleSheet.create({
 
   content: {
     paddingBottom: 110,
+    paddingHorizontal: 20,
   },
 
   itemsHeader: {
-    paddingHorizontal: 20,
-    paddingTop: 18,
-    paddingBottom: 12,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginTop: 20,
+    marginBottom: 10,
   },
 
   sectionTitle: {
@@ -176,40 +176,38 @@ const styles = StyleSheet.create({
   },
 
   addButton: {
-    borderWidth: 1,
-    borderColor: '#E5B4B4',
-    borderRadius: 6,
     paddingHorizontal: 12,
-    paddingVertical: 5,
-    backgroundColor: '#FFFFFF',
+    paddingVertical: 6,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#991B1B',
   },
 
   addButtonText: {
-    color: '#8B1D1D',
     fontSize: 13,
-    fontWeight: '500',
+    fontWeight: '600',
+    color: '#991B1B',
   },
 
   noteLabel: {
-    marginHorizontal: 20,
-    marginTop: 16,
+    marginTop: 20,
     marginBottom: 8,
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '500',
-    color: '#666666',
+    color: '#4B5563',
   },
 
   noteInput: {
-    marginHorizontal: 20,
-    minHeight: 80,
+    minHeight: 70,
     borderWidth: 1,
-    borderColor: '#E5E5E5',
+    borderColor: '#E5E7EB',
     borderRadius: 10,
     padding: 12,
-    fontSize: 14,
-    color: '#333333',
     textAlignVertical: 'top',
+    fontSize: 14,
+    color: '#111827',
     backgroundColor: '#FFFFFF',
+    marginBottom: 20,
   },
 
   paymentBar: {
@@ -217,37 +215,37 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    minHeight: 76,
-    paddingHorizontal: 20,
-    paddingVertical: 12,
+    height: 80,
     backgroundColor: '#FFFFFF',
     borderTopWidth: 1,
     borderTopColor: '#EEEEEE',
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
   },
 
   totalLabel: {
-    fontSize: 13,
-    color: '#A0A0A0',
+    fontSize: 12,
+    color: '#777777',
   },
 
   totalPrice: {
-    marginTop: 4,
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: '700',
-    color: '#171717',
+    color: '#991B1B',
   },
 
   paymentButton: {
+    paddingHorizontal: 24,
+    height: 48,
     borderRadius: 8,
-    paddingHorizontal: 18,
-    paddingVertical: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 
   paymentButtonActive: {
-    backgroundColor: '#8B1D1D',
+    backgroundColor: '#991B1B',
   },
 
   paymentButtonDisabled: {
@@ -256,7 +254,7 @@ const styles = StyleSheet.create({
 
   paymentText: {
     color: '#FFFFFF',
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: '600',
   },
 });

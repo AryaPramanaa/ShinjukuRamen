@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Image,
   Pressable,
@@ -7,7 +7,6 @@ import {
   View,
 } from 'react-native';
 import QuantitySelector from '../molecules/QuantitySelector';
-
 import DefaultFoodImage from '../atoms/DefaultFoodImage';
 
 interface MenuItemProps {
@@ -26,12 +25,11 @@ const MenuItem = ({
   name,
   price,
   quantity,
-
   onAdd,
   onIncrease,
   onDecrease,
-
 }: MenuItemProps) => {
+  const [imageError, setImageError] = useState(false);
 
   return (
     <View style={[
@@ -40,10 +38,11 @@ const MenuItem = ({
     ]}>
 
       {/* IMAGE */}
-      {image ? (
+      {image && !imageError ? (
         <Image
           source={{ uri: image }}
           style={styles.image}
+          onError={() => setImageError(true)}
         />
       ) : (
         <DefaultFoodImage width={58} height={58} borderRadius={8} />
@@ -111,55 +110,58 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
   },
+
   containerActive: {
-    borderColor: '#e69d9d',
+    borderColor: '#E29595',
+    backgroundColor: '#FFFFFF',
   },
 
   image: {
     width: 58,
     height: 58,
     borderRadius: 8,
+    backgroundColor: '#EEEEEE',
   },
 
   content: {
     flex: 1,
-    marginLeft: 10,
-    marginRight: 8,
+    marginLeft: 12,
   },
 
   name: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '600',
     color: '#171717',
   },
 
   price: {
-    marginTop: 12,
-    fontSize: 13,
-    color: '#333333',
+    marginTop: 6,
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#777777',
   },
 
   action: {
-    justifyContent: 'center',
-    alignItems: 'center',
+    marginLeft: 10,
   },
 
   addButton: {
-    minWidth: 70,
-    height: 32,
-    paddingHorizontal: 10,
+    height: 38,
+    paddingHorizontal: 16,
+    borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#E5A5A5',
-    borderRadius: 6,
-    alignItems: 'center',
+    borderColor: '#E29595',
     justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
   },
 
   addText: {
-    fontSize: 13,
-    color: '#B91C1C',
-    fontWeight: '500',
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#8B1D1D',
   },
+
 });
 
 export default MenuItem;

@@ -35,7 +35,7 @@ const MenuHeader = ({
       <View style={styles.heroOverlay}>
 
         {!isSearch ? (
-          <>
+          <View style={styles.normalHeaderRow}>
             <Pressable style={styles.headerButton}>
               <Icon
                 name="menu-outline"
@@ -54,16 +54,16 @@ const MenuHeader = ({
                 color="#FFFFFF"
               />
             </Pressable>
-          </>
+          </View>
         ) : (
-          <>
+          <View style={styles.searchHeaderRow}>
             <Pressable
               style={styles.searchBackButton}
               onPress={onCloseSearch}
             >
               <Icon
-                name="arrow-back"
-                size={30}
+                name="arrow-back-outline"
+                size={26}
                 color="#FFFFFF"
               />
             </Pressable>
@@ -73,7 +73,7 @@ const MenuHeader = ({
               onChangeText={onChangeSearch}
               onClear={onClearSearch}
             />
-          </>
+          </View>
         )}
 
       </View>
@@ -83,18 +83,29 @@ const MenuHeader = ({
 
 const styles = StyleSheet.create({
   hero: {
-    height: 230,
+    height: 190,
     width: '100%',
   },
 
   heroOverlay: {
     flex: 1,
     paddingTop: 45,
-    paddingHorizontal: 20,
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    justifyContent: 'flex-start',
     zIndex: 20,
+  },
+
+  normalHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+
+  searchHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
   },
 
   headerButton: {
@@ -107,13 +118,11 @@ const styles = StyleSheet.create({
   },
 
   searchBackButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: 'rgba(0, 0, 0, 0.35)',
+    width: 36,
+    height: 36,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 10,
+    marginRight: 8,
   },
 });
 

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Image,
   Pressable,
@@ -7,12 +7,11 @@ import {
   View,
 } from 'react-native';
 import QuantitySelector from './QuantitySelector';
-
 import DefaultFoodImage from '../atoms/DefaultFoodImage';
 
 interface CartItemProps {
   item: {
-    id: number;
+    id: number | string;
     name: string;
     price: number;
     image: string;
@@ -31,13 +30,16 @@ const CartItem = ({
   onIncrease,
   onDecrease,
 }: CartItemProps) => {
+  const [imageError, setImageError] = useState(false);
+
   return (
     <View style={styles.container}>
 
-      {item.image ? (
+      {item.image && !imageError ? (
         <Image
           source={{ uri: item.image }}
           style={styles.image}
+          onError={() => setImageError(true)}
         />
       ) : (
         <DefaultFoodImage width={50} height={50} borderRadius={6} />
@@ -60,20 +62,17 @@ const CartItem = ({
           </Pressable>
         </View>
 
-        <View style={styles.noteRow}>
-          <Text style={styles.noteIcon}>
-            ▧
-          </Text>
-
-          <Text style={styles.note}>
-            {item.note || 'No additional notes'}
-          </Text>
-        </View>
+        <Text style={styles.price}>
+          $ {item.price.toFixed(2)}
+        </Text>
 
         <View style={styles.bottomRow}>
 
-          <Text style={styles.price}>
-            $ {item.price.toFixed(2)}
+          <Text
+            style={styles.note}
+            numberOfLines={1}
+          >
+            {item.note || 'No notes'}
           </Text>
 
           <QuantitySelector
@@ -85,31 +84,30 @@ const CartItem = ({
         </View>
 
       </View>
+
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    minHeight: 105,
-    marginHorizontal: 0,
-    marginBottom: 12,
-    padding: 10,
-    borderWidth: 1,
-    borderColor: '#E5E5E5',
-    borderRadius: 8,
     flexDirection: 'row',
+    marginBottom: 16,
+    paddingBottom: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
   },
 
   image: {
     width: 50,
     height: 50,
     borderRadius: 6,
+    backgroundColor: '#EEEEEE',
   },
 
   info: {
     flex: 1,
-    marginLeft: 10,
+    marginLeft: 12,
   },
 
   nameRow: {
@@ -119,45 +117,38 @@ const styles = StyleSheet.create({
   },
 
   name: {
-    flex: 1,
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: '600',
-    color: '#222',
+    color: '#171717',
+    flex: 1,
     marginRight: 8,
   },
 
   edit: {
     fontSize: 13,
-    color: '#2563EB',
-  },
-
-  noteRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 6,
-  },
-
-  noteIcon: {
-    fontSize: 13,
-    color: '#B0B0B0',
-  },
-
-  note: {
-    marginLeft: 4,
-    fontSize: 11,
-    color: '#B0B0B0',
-  },
-
-  bottomRow: {
-    marginTop: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    color: '#8B1D1D',
+    fontWeight: '500',
   },
 
   price: {
-    fontSize: 13,
-    color: '#333',
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#777777',
+    marginTop: 2,
+  },
+
+  bottomRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 8,
+  },
+
+  note: {
+    fontSize: 12,
+    color: '#AAAAAA',
+    flex: 1,
+    marginRight: 8,
   },
 });
 

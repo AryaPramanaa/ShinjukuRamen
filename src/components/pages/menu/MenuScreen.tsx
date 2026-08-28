@@ -277,9 +277,11 @@ const MenuScreen = () => {
       console.log('Error fetching show-item for handleAddItem:', error);
     }
 
+    const cartItemId = `cart_${item.id}_simple`;
+
     setCart((prevCart: any[]) => {
       const existingItemIndex = prevCart.findIndex(
-        cartItem => cartItem.id === item.id && !cartItem.optionsText,
+        cartItem => cartItem.cartItemId === cartItemId,
       );
 
       if (existingItemIndex > -1) {
@@ -292,9 +294,12 @@ const MenuScreen = () => {
         ...prevCart,
         {
           ...item,
+          cartItemId,
+          uniqueCartKey: cartItemId,
           quantity: 1,
           note: '',
           optionsText: '',
+          selectedModifierIds: [],
         },
       ];
     });
@@ -310,12 +315,20 @@ const MenuScreen = () => {
   ) => {
     const finalPrice = item.price + additionalPrice;
 
+    const selectedModifierIds: string[] = [];
+    Object.values(selectedOptions).forEach(ids => {
+      if (Array.isArray(ids)) {
+        selectedModifierIds.push(...ids);
+      }
+    });
+
+    const sortedMods = [...selectedModifierIds].sort().join('_');
+    const cleanNote = (note || '').trim().toLowerCase();
+    const cartItemId = `cart_${item.id}_mods[${sortedMods}]_note[${cleanNote}]`;
+
     setCart((prevCart: any[]) => {
       const existingItemIndex = prevCart.findIndex(
-        cartItem =>
-          cartItem.id === item.id &&
-          cartItem.note === note &&
-          cartItem.optionsText === optionsText,
+        cartItem => cartItem.cartItemId === cartItemId,
       );
 
       if (existingItemIndex > -1) {
@@ -328,44 +341,76 @@ const MenuScreen = () => {
         ...prevCart,
         {
           ...item,
+          cartItemId,
+          uniqueCartKey: cartItemId,
           price: finalPrice,
           quantity,
           note,
           optionsText,
+          selectedModifierIds,
         },
       ];
     });
   };
 
-  const handleIncrease = (id: number) => {
+  const handleIncrease = async (baseItemId: any) => {
+    const menuObj = menus.find(m => String(m.id) === String(baseItemId));
+    if (menuObj) {
+      try {
+        const response = await getShowItemApi(menuObj.id);
+        if (response?.success && response?.data) {
+          const itemDetail = response.data;
+          if (Array.isArray(itemDetail.modifiers) && itemDetail.modifiers.length > 0) {
+            const parsedPrice = typeof itemDetail.price === 'string' ? parseFloat(itemDetail.price) : itemDetail.price;
+            setSelectedMenu({ ...menuObj, ...itemDetail, price: parsedPrice });
+            setIsAddMenuModal(true);
+            return;
+          }
+        }
+      } catch (error) {
+        console.log('Error in handleIncrease for item with options:', error);
+      }
+    }
+
     setCart((prevCart: any[]) =>
-      prevCart.map(item =>
-        item.id === id
+      prevCart.map(item => {
+        const itemKey = item.cartItemId || item.uniqueCartKey || item.id;
+        return String(item.id) === String(baseItemId) || itemKey === baseItemId
           ? { ...item, quantity: item.quantity + 1 }
-          : item,
-      ),
+          : item;
+      }),
     );
   };
 
-  const handleDecrease = (id: number) => {
+  const handleDecrease = (baseItemId: any) => {
     setCart((prevCart: any[]) => {
-      const targetItem = prevCart.find(
-        item => item.id === id,
+      const matchingItems = prevCart.filter(
+        item => String(item.id) === String(baseItemId) || item.cartItemId === baseItemId,
       );
-      if (targetItem && targetItem.quantity === 1) {
-        return prevCart.filter(item => item.id !== id);
+      if (matchingItems.length === 0) return prevCart;
+
+      const targetItem = matchingItems[matchingItems.length - 1];
+      const targetKey = targetItem.cartItemId || targetItem.uniqueCartKey || targetItem.id;
+
+      if (targetItem.quantity === 1) {
+        return prevCart.filter(
+          item => (item.cartItemId || item.uniqueCartKey || item.id) !== targetKey,
+        );
       }
-      return prevCart.map(item =>
-        item.id === id
+
+      return prevCart.map(item => {
+        const itemKey = item.cartItemId || item.uniqueCartKey || item.id;
+        return itemKey === targetKey
           ? { ...item, quantity: item.quantity - 1 }
-          : item,
-      );
+          : item;
+      });
     });
   };
 
-  const getQuantity = (id: number) => {
-    const item = cart.find(cartItem => cartItem.id === id);
-    return item ? item.quantity : 0;
+  const getQuantity = (baseItemId: any) => {
+    return cart
+      .filter(cartItem => String(cartItem.id) === String(baseItemId))
+      .reduce((total, cartItem) => total + cartItem.quantity, 0);
   };
 
   const handleOpenCart = () => {

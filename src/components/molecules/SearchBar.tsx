@@ -22,15 +22,15 @@ const SearchBar = ({
     <View style={styles.searchBar}>
       <Icon
         name="search-outline"
-        size={27}
-        color="#666666"
+        size={22}
+        color="#555555"
       />
 
       <TextInput
         value={value}
         onChangeText={onChangeText}
         placeholder="Search item..."
-        placeholderTextColor="#B4B3B3"
+        placeholderTextColor="#999999"
         autoFocus
         style={styles.searchInput}
       />
@@ -42,7 +42,7 @@ const SearchBar = ({
         >
           <Icon
             name="close"
-            size={18}
+            size={14}
             color="#FFFFFF"
           />
         </Pressable>
@@ -54,36 +54,36 @@ const SearchBar = ({
 const styles = StyleSheet.create({
   searchBar: {
     flex: 1,
-    height: 42,
+    height: 44,
     backgroundColor: '#FFFFFF',
-    borderRadius: 30,
+    borderRadius: 22,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 18,
-    elevation: 5,
+    paddingHorizontal: 14,
+    elevation: 4,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 2,
     },
-    shadowOpacity: 0.18,
-    shadowRadius: 5,
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
   },
 
   searchInput: {
     flex: 1,
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '500',
     color: '#333333',
-    marginLeft: 12,
+    marginLeft: 8,
     paddingVertical: 0,
   },
 
   clearButton: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: '#E5E5E5',
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: '#E0E0E0',
     alignItems: 'center',
     justifyContent: 'center',
   },

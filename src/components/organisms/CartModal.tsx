@@ -60,15 +60,18 @@ const CartModal = ({
           showsVerticalScrollIndicator={false}
           style={styles.list}
         >
-          {cart.map(item => (
-            <CartItem
-              key={item.id}
-              item={item}
-              onEdit={() => onEditItem(item)}
-              onIncrease={() => onIncrease(item.id)}
-              onDecrease={() => onDecrease(item.id)}
-            />
-          ))}
+          {cart.map((item, index) => {
+            const targetKey = item.cartItemId || item.uniqueCartKey || item.id;
+            return (
+              <CartItem
+                key={item.cartItemId || item.uniqueCartKey || `${item.id}-${index}`}
+                item={item}
+                onEdit={() => onEditItem(item)}
+                onIncrease={() => onIncrease(targetKey)}
+                onDecrease={() => onDecrease(targetKey)}
+              />
+            );
+          })}
         </ScrollView>
 
         {/* Footer Checkout Bar */}
