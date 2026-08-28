@@ -39,12 +39,12 @@ const MenuList = ({
         </Text>
       )}
 
-      {menus.map(item => {
+      {menus.map((item, index) => {
         const quantity = getQuantity(item.id);
 
         return (
           <MenuItem
-            key={item.id}
+            key={item.uniqueKey || `${item.id}-${index}`}
             image={item.image}
             name={item.name}
             price={item.price}

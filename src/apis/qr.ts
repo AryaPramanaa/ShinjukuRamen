@@ -1,6 +1,5 @@
-
 import http from '../http/core';
-import { Endpoints } from './index';
+import { Endpoints } from './endpoints';
 
 export interface QRValidationResult {
   isValid: boolean;

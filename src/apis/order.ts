@@ -1,6 +1,5 @@
-
 import http from '../http/core';
-import { Endpoints } from './index';
+import { Endpoints } from './endpoints';
 
 export interface OrderInfoParams {
   outlet_id?: string;
@@ -35,12 +34,6 @@ export interface OrderInfoResponse {
 
 const ORDER_API_BASE_URL = 'https://terminalone-pos-staging-api-user.rapitech.id';
 
-/**
- * Fetches order, outlet, and table information from the live API.
- * 
- * @param params Query parameters (outlet_id, table_id, q)
- * @returns Promise resolving to OrderInfoResponse
- */
 export const getOrderInfoApi = async (
   params: OrderInfoParams = {}
 ): Promise<OrderInfoResponse> => {

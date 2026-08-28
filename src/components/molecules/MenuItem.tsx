@@ -37,9 +37,6 @@ const MenuItem = ({
       quantity > 0 && styles.containerActive,
     ]}>
 
-      {/* IMAGE */}
-      {/* Fallback image removed */}
-
       {/* CONTENT */}
       <View style={styles.content}>
 

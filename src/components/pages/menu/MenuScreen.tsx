@@ -3,16 +3,12 @@ import { useNavigation } from '@react-navigation/native';
 import { useApp } from '../../../context/AppContext';
 import MenuTemplate from '../../templates/MenuTemplate';
 import { getOrderInfoApi, OutletInfo, TableInfoData } from '../../../apis/order';
-import {
-  ramenCategories,
-  ramenMenus,
-  sidesMenu,
-  drinkMenu,
-  promoMenu,
-} from '../../../constants/menuData';
+import { getCategoriesApi, getShowCategoryApi } from '../../../apis/category';
+import { getShowMenuApi } from '../../../apis/menu';
+import { getShowItemApi } from '../../../apis/item';
 
 interface CartItem {
-  id: number;
+  id: number | string;
   name: string;
   price: number;
   image: string;
@@ -20,6 +16,17 @@ interface CartItem {
   note: string;
   optionsText?: string;
 }
+
+const DEFAULT_CATEGORY_MAP: Record<string, string> = {
+  'Ramen': 'cmlqs8n6i006qkgttdn8i3ewn',
+  'Rice Dishes (Donburi)': 'cmlqs8n6i006rkgtta4670c6z',
+  'Donburi': 'cmlqs8n6i006rkgtta4670c6z',
+  'Drinks': 'cmlqs8n6i006tkgtt7rv4048f',
+  'Drink': 'cmlqs8n6i006tkgtt7rv4048f',
+  'Desserts': 'cmlqs8n6i006ukgttb4dlht5k',
+  'FOOD': 'cmmeksjye00240kgs7d5p2q3s',
+  'RAMEN': 'cmn7ag7qo00300jfnh6wef8yl',
+};
 
 const MenuScreen = () => {
   const navigation = useNavigation();
@@ -38,6 +45,9 @@ const MenuScreen = () => {
 
   const [outletInfo, setOutletInfo] = useState<OutletInfo | undefined>(undefined);
   const [tableInfo, setTableInfo] = useState<TableInfoData | undefined>(undefined);
+  const [dynamicRamenCategories, setDynamicRamenCategories] = useState<string[]>([]);
+  const [apiMenus, setApiMenus] = useState<any[]>([]);
+  const [categoryMap, setCategoryMap] = useState<Record<string, string>>(DEFAULT_CATEGORY_MAP);
 
   useEffect(() => {
     const fetchOrderInfo = async () => {
@@ -55,33 +65,99 @@ const MenuScreen = () => {
       }
     };
 
+    const fetchCategories = async () => {
+      try {
+        const response = await getCategoriesApi({
+          outlet_id: 'cmlqs8mip0000kgtt14z7csfb',
+          category_id: 'cmlqs8n6i006qkgttdn8i3ewn',
+        });
+        if (response?.success && response?.data?.sub_categories) {
+          const fetchedNames = response.data.sub_categories.map(cat => cat.name);
+          if (fetchedNames.length > 0) {
+            setDynamicRamenCategories(fetchedNames);
+          }
+        }
+      } catch (error) {
+        console.log('Error fetching category list:', error);
+      }
+    };
+
+    const fetchMainCategoryMap = async () => {
+      try {
+        const response = await getShowCategoryApi('cmlqs8mip0000kgtt14z7csfb');
+        if (response?.success && Array.isArray(response?.data)) {
+          const map: Record<string, string> = {};
+          response.data.forEach(cat => {
+            map[cat.name] = cat.id;
+          });
+          setCategoryMap(prev => ({ ...prev, ...map }));
+        }
+      } catch (error) {
+        console.log('Error fetching show-category map:', error);
+      }
+    };
+
     fetchOrderInfo();
+    fetchCategories();
+    fetchMainCategoryMap();
   }, []);
 
-  const getMenus = () => {
-    if (activeCategory === 'Ramen') {
-      if (activeRamenCategory === null) {
-        return Object.values(ramenMenus).flat();
-      }
-      return (
-        ramenMenus[
-          activeRamenCategory as keyof typeof ramenMenus
-        ] || []
-      );
-    }
-    if (activeCategory === 'Sides') {
-      return sidesMenu;
-    }
-    if (activeCategory === 'Drink') {
-      return drinkMenu;
-    }
-    if (activeCategory === 'Promo') {
-      return promoMenu;
-    }
-    return [];
-  };
+  // Fetch live menu items based on activeCategory and searchText
+  useEffect(() => {
+    const fetchLiveMenu = async () => {
+      const catId = categoryMap[activeCategory] || categoryMap['Ramen'] || 'cmlqs8n6i006qkgttdn8i3ewn';
+      try {
+        const response = await getShowMenuApi({
+          outlet_id: 'cmlqs8mip0000kgtt14z7csfb',
+          category_id: catId,
+          q: searchText,
+        });
 
-  const menus = getMenus();
+        if (response?.success && Array.isArray(response?.data) && response.data.length > 0) {
+          const allItems: any[] = [];
+          const seenIds = new Set<string>();
+
+          response.data.forEach(catGroup => {
+            if (Array.isArray(catGroup.sub_categories)) {
+              catGroup.sub_categories.forEach(sub => {
+                const isSubMatch =
+                  !activeRamenCategory ||
+                  sub.name.toLowerCase().includes(activeRamenCategory.toLowerCase()) ||
+                  activeRamenCategory.toLowerCase().includes(sub.name.toLowerCase());
+
+                if (isSubMatch && Array.isArray(sub.items)) {
+                  sub.items.forEach(item => {
+                    if (!seenIds.has(String(item.id))) {
+                      seenIds.add(String(item.id));
+                      allItems.push({
+                        id: item.id,
+                        uniqueKey: `${item.id}-${sub.id}`,
+                        name: item.name,
+                        price: typeof item.price === 'string' ? parseFloat(item.price) : item.price,
+                        image: item.image || 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=500',
+                        description: item.description || '',
+                      });
+                    }
+                  });
+                }
+              });
+            }
+          });
+
+          setApiMenus(allItems);
+        } else {
+          setApiMenus([]);
+        }
+      } catch (error) {
+        console.log('Error fetching live show-menu:', error);
+        setApiMenus([]);
+      }
+    };
+
+    fetchLiveMenu();
+  }, [activeCategory, activeRamenCategory, searchText, categoryMap]);
+
+  const menus = apiMenus;
 
   const filteredMenus = menus.filter(item =>
     item.name
@@ -99,92 +175,48 @@ const MenuScreen = () => {
     navigation.navigate('OrderSummary' as never);
   };
 
-  const handleAddFromModal = (
-    item: any,
-    quantity: number,
-    selectedOptions: {
-      noodles: number[];
-      broth: number[];
-      toppings: number[];
-    },
-    additionalPrice: number,
-    note: string,
-  ) => {
-    setCart(prevCart => {
-      const itemPrice = item.price + additionalPrice;
+  const handleOpenSearch = () => {
+    setIsSearch(true);
+  };
+
+  const handleCloseSearch = () => {
+    setIsSearch(false);
+    setSearchText('');
+  };
+
+  const handleSelectCategory = (category: string) => {
+    setActiveCategory(category);
+    setActiveRamenCategory(null);
+    setIsCategoryModal(false);
+  };
+
+  const handleAddItem = async (item: any) => {
+    try {
+      const response = await getShowItemApi(item.id);
+      if (response?.success && response?.data) {
+        const itemDetail = response.data;
+        const parsedPrice = typeof itemDetail.price === 'string' ? parseFloat(itemDetail.price) : itemDetail.price;
+        const itemWithPrice = { ...item, ...itemDetail, price: parsedPrice };
+
+        if (Array.isArray(itemDetail.modifiers) && itemDetail.modifiers.length > 0) {
+          setSelectedMenu(itemWithPrice);
+          setIsAddMenuModal(true);
+          return;
+        }
+      }
+    } catch (error) {
+      console.log('Error fetching show-item for handleAddItem:', error);
+    }
+
+    setCart((prevCart: any[]) => {
       const existingItemIndex = prevCart.findIndex(
-        cartItem =>
-          cartItem.id === item.id &&
-          cartItem.note === note &&
-          cartItem.price === itemPrice,
+        cartItem => cartItem.id === item.id && !cartItem.optionsText,
       );
-
-      const resolvedNoodles = (item.noodles || [])
-        .filter((n: any) => selectedOptions.noodles.includes(n.id))
-        .map((n: any) => n.name);
-
-      const resolvedBroth = (item.broth || [])
-        .filter((b: any) => selectedOptions.broth.includes(b.id))
-        .map((b: any) => b.name);
-
-      const resolvedToppings = (item.toppings || [])
-        .filter((t: any) => selectedOptions.toppings.includes(t.id))
-        .map((t: any) => t.name);
-
-      const optionsText = [
-        ...resolvedNoodles,
-        ...resolvedBroth,
-        ...resolvedToppings,
-      ].join(', ');
 
       if (existingItemIndex > -1) {
-        return prevCart.map((cartItem, idx) =>
-          idx === existingItemIndex
-            ? {
-              ...cartItem,
-              quantity: cartItem.quantity + quantity,
-            }
-            : cartItem,
-        );
-      }
-
-      return [
-        ...prevCart,
-        {
-          id: item.id,
-          name: item.name,
-          price: itemPrice,
-          image: item.image,
-          quantity: quantity,
-          note: note,
-          optionsText: optionsText,
-        },
-      ];
-    });
-
-    handleCloseAddMenu();
-  };
-
-  const handleEditItem = (item: CartItem) => {
-    setSelectedCartItem(item);
-    setIsEditModal(true);
-  };
-
-  const handleConfirmAddMenu = (item: any) => {
-    setCart(prevCart => {
-      const existingItem = prevCart.find(
-        cartItem => cartItem.id === item.id,
-      );
-
-      if (existingItem) {
-        return prevCart.map(cartItem =>
-          cartItem.id === item.id
-            ? {
-              ...cartItem,
-              quantity: cartItem.quantity + 1,
-            }
-            : cartItem,
-        );
+        const newCart = [...prevCart];
+        newCart[existingItemIndex].quantity += 1;
+        return newCart;
       }
 
       return [
@@ -193,27 +225,78 @@ const MenuScreen = () => {
           ...item,
           quantity: 1,
           note: '',
+          optionsText: '',
         },
       ];
     });
-
-    handleCloseAddMenu();
   };
 
-  const handleUpdateNote = (
-    id: number,
+  const handleAddFromModal = (
+    item: any,
+    quantity: number,
+    selectedOptions: Record<string, string[]>,
+    additionalPrice: number,
     note: string,
+    optionsText: string,
   ) => {
-    setCart(prevCart =>
+    const finalPrice = item.price + additionalPrice;
+
+    setCart((prevCart: any[]) => {
+      const existingItemIndex = prevCart.findIndex(
+        cartItem =>
+          cartItem.id === item.id &&
+          cartItem.note === note &&
+          cartItem.optionsText === optionsText,
+      );
+
+      if (existingItemIndex > -1) {
+        const newCart = [...prevCart];
+        newCart[existingItemIndex].quantity += quantity;
+        return newCart;
+      }
+
+      return [
+        ...prevCart,
+        {
+          ...item,
+          price: finalPrice,
+          quantity,
+          note,
+          optionsText,
+        },
+      ];
+    });
+  };
+
+  const handleIncrease = (id: number) => {
+    setCart((prevCart: any[]) =>
       prevCart.map(item =>
         item.id === id
-          ? {
-            ...item,
-            note,
-          }
+          ? { ...item, quantity: item.quantity + 1 }
           : item,
       ),
     );
+  };
+
+  const handleDecrease = (id: number) => {
+    setCart((prevCart: any[]) => {
+      const targetItem = prevCart.find(
+        item => item.id === id,
+      );
+      if (targetItem && targetItem.quantity === 1) {
+        return prevCart.filter(item => item.id !== id);
+      }
+      return prevCart.map(item =>
+        item.id === id
+          ? { ...item, quantity: item.quantity - 1 }
+          : item,
+      );
+    });
+  };
+
+  const getQuantity = (id: number) => {
+    const item = cart.find(cartItem => cartItem.id === id);
+    return item ? item.quantity : 0;
   };
 
   const handleOpenCart = () => {
@@ -224,98 +307,22 @@ const MenuScreen = () => {
     setIsCartModal(false);
   };
 
+  const handleEditItem = (item: any) => {
+    setSelectedCartItem(item);
+    setIsEditModal(true);
+  };
+
   const handleCloseEdit = () => {
     setIsEditModal(false);
     setSelectedCartItem(null);
   };
 
-  const handleSelectCategory = (category: string) => {
-    setActiveCategory(category);
-    setActiveRamenCategory(null);
-    setIsCategoryModal(false);
-  };
-
-  const handleOpenSearch = () => {
-    setIsSearch(true);
-  };
-
-  const handleCloseSearch = () => {
-    setIsSearch(false);
-    setSearchText('');
-  };
-
-  const handleAddItem = (item: any) => {
-    const hasOptions =
-      item.noodles ||
-      item.broth ||
-      item.toppings;
-
-    if (hasOptions) {
-      setSelectedMenu(item);
-      setIsAddMenuModal(true);
-      return;
-    }
-
-    setCart(prevCart => {
-      const existingItem = prevCart.find(
-        cartItem => cartItem.id === item.id,
-      );
-
-      if (existingItem) {
-        return prevCart.map(cartItem =>
-          cartItem.id === item.id
-            ? {
-              ...cartItem,
-              quantity: cartItem.quantity + 1,
-            }
-            : cartItem,
-        );
-      }
-
-      return [
-        ...prevCart,
-        {
-          ...item,
-          quantity: 1,
-          note: '',
-        },
-      ];
-    });
-  };
-
-  const handleIncrease = (id: number) => {
-    setCart(prevCart =>
+  const handleUpdateNote = (id: number, note: string) => {
+    setCart((prevCart: any[]) =>
       prevCart.map(item =>
-        item.id === id
-          ? {
-            ...item,
-            quantity: item.quantity + 1,
-          }
-          : item,
+        item.id === id ? { ...item, note } : item,
       ),
     );
-  };
-
-  const handleDecrease = (id: number) => {
-    setCart(prevCart =>
-      prevCart
-        .map(item =>
-          item.id === id
-            ? {
-              ...item,
-              quantity: item.quantity - 1,
-            }
-            : item,
-        )
-        .filter(item => item.quantity > 0),
-    );
-  };
-
-  const getQuantity = (id: number) => {
-    const item = cart.find(
-      cartItem => cartItem.id === id,
-    );
-    return item ? item.quantity : 0;
   };
 
   const totalQuantity = cart.reduce(
@@ -335,7 +342,7 @@ const MenuScreen = () => {
       searchText={searchText}
       activeCategory={activeCategory}
       activeRamenCategory={activeRamenCategory}
-      ramenCategories={ramenCategories}
+      ramenCategories={dynamicRamenCategories}
       menus={filteredMenus}
       isCategoryModal={isCategoryModal}
       cart={cart}

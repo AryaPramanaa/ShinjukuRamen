@@ -8,7 +8,7 @@ import {
 import Icon from '../atoms/Icon';
 
 interface Option {
-    id: number;
+    id: string | number;
     name: string;
     price?: number;
 }
@@ -17,8 +17,8 @@ interface MenuOptionProps {
     title: string;
     chooseText: string;
     options: Option[];
-    selectedIds: number[];
-    onSelect: (id: number) => void;
+    selectedIds: (string | number)[];
+    onSelect: (id: any) => void;
     maxSelect?: number;
 }
 
@@ -28,7 +28,6 @@ const MenuOption = ({
     options,
     selectedIds,
     onSelect,
-    maxSelect = 1,
 }: MenuOptionProps) => {
 
     return (
@@ -39,13 +38,12 @@ const MenuOption = ({
             </Text>
 
             {options.map(option => {
-
-                const selected =
-                    selectedIds.includes(option.id);
+                const selected = selectedIds.includes(option.id);
+                const hasPrice = option.price && option.price > 0;
 
                 return (
                     <Pressable
-                        key={option.id}
+                        key={String(option.id)}
                         style={styles.option}
                         onPress={() => onSelect(option.id)}
                     >
@@ -55,16 +53,13 @@ const MenuOption = ({
                         </Text>
 
                         <Text style={styles.price}>
-                            {option.price && option.price > 0
-                                ? `+ AU$ ${option.price.toFixed(2)}`
-                                : '0'}
+                            {hasPrice ? `+ $ ${option.price!.toFixed(2)}` : '0'}
                         </Text>
 
                         <View
                             style={[
                                 styles.checkbox,
-                                selected &&
-                                styles.checkboxSelected,
+                                selected && styles.checkboxSelected,
                             ]}
                         >
                             {selected && (
@@ -87,18 +82,18 @@ const MenuOption = ({
 const styles = StyleSheet.create({
 
     container: {
-        marginTop: 16,
+        marginTop: 14,
         padding: 16,
         borderWidth: 1,
-        borderColor: '#E5E5E5',
+        borderColor: '#E5E7EB',
         borderRadius: 12,
         backgroundColor: '#FFFFFF',
     },
 
     title: {
-        fontSize: 14,
-        color: '#A0A0A0',
-        marginBottom: 12,
+        fontSize: 13,
+        color: '#9CA3AF',
+        marginBottom: 10,
         fontWeight: '400',
     },
 
@@ -113,29 +108,29 @@ const styles = StyleSheet.create({
     optionName: {
         flex: 1,
         fontSize: 15,
-        color: '#444444',
+        color: '#374151',
     },
 
     price: {
         fontSize: 14,
-        color: '#666666',
+        color: '#6B7280',
         marginRight: 14,
     },
 
     checkbox: {
-        width: 24,
-        height: 24,
+        width: 22,
+        height: 22,
         borderRadius: 6,
         borderWidth: 1.5,
-        borderColor: '#EAEAEA',
+        borderColor: '#D1D5DB',
         backgroundColor: '#FFFFFF',
         alignItems: 'center',
         justifyContent: 'center',
     },
 
     checkboxSelected: {
-        backgroundColor: '#8B1D1D',
-        borderColor: '#8B1D1D',
+        backgroundColor: '#B91C1C',
+        borderColor: '#B91C1C',
     },
 });
 

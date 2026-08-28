@@ -66,8 +66,6 @@ const PointsHistory = ({
           <Text style={styles.pointsText}>{points} Point</Text>
           <Text style={styles.expiryText}>10 points will expire on April 30, 2026</Text>
         </View>
-
-        {/* LEDGER ENTRIES */}
         
         {/* TODAY */}
         <View style={styles.groupSection}>

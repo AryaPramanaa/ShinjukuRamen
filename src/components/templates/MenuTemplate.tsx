@@ -147,7 +147,7 @@ const MenuTemplate = ({
                         name={outletInfo?.name}
                         openTime={outletInfo?.open_time}
                         closeTime={outletInfo?.close_time}
-                        logo={outletInfo?.logo}
+                       
                     />
                     <TableInfo
                         tableNumber={tableInfo?.name || 'A2'}
@@ -207,7 +207,7 @@ const MenuTemplate = ({
                 onSelectCategory={onSelectCategory}
             />
 
-            {!isCartModal && !isAddMenuModal &&(
+            {!isCartModal && !isAddMenuModal && !isCategoryModal && (
                 <CartBar
                     totalQuantity={totalQuantity}
                     totalPrice={totalPrice}

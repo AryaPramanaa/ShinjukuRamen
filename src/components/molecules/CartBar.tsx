@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
     bottom: 20,
     height: 52,
     borderRadius: 8,
-    backgroundColor: '#8B1D1D', // Brand crimson
+    backgroundColor: '#8B1D1D', 
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 10,
@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
     width: 18,
     height: 18,
     borderRadius: 9,
-    backgroundColor: '#84CC16', // Lime green
+    backgroundColor: '#84CC16', 
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,

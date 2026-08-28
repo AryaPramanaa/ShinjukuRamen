@@ -1,7 +1,6 @@
-export const Endpoints = {
-  ORDER_SHOW_INFO: '/api/v1/order/show-info',
-  GENERATE_QR: '/api/v1/qr/generate',
-};
-
+export * from './endpoints';
 export * from './qr';
 export * from './order';
+export * from './category';
+export * from './menu';
+export * from './item';

@@ -1,11 +1,14 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
+  ActivityIndicator,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
 import Icon from '../atoms/Icon';
+import { getShowCategoryApi, MainCategoryItem } from '../../apis/category';
 
 interface CategoryModalProps {
   visible: boolean;
@@ -20,6 +23,36 @@ const CategoryModal = ({
   onClose,
   onSelectCategory,
 }: CategoryModalProps) => {
+  const [categories, setCategories] = useState<MainCategoryItem[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchCategories = async () => {
+      setLoading(true);
+      try {
+        const response = await getShowCategoryApi('cmlqs8mip0000kgtt14z7csfb');
+        if (isMounted && response?.success && Array.isArray(response?.data)) {
+          setCategories(response.data);
+        }
+      } catch (error) {
+        console.log('Error fetching show-category in CategoryModal:', error);
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    if (visible) {
+      fetchCategories();
+    }
+
+    return () => {
+      isMounted = false;
+    };
+  }, [visible]);
 
   if (!visible) {
     return null;
@@ -46,75 +79,51 @@ const CategoryModal = ({
           >
             <Icon
               name="close"
-              size={25}
-              color="#666666"
+              size={22}
+              color="#4B5563"
             />
           </Pressable>
         </View>
 
-        <Pressable
-          style={styles.item}
-          onPress={() =>
-            onSelectCategory('Ramen')
-          }
-        >
-          <Text
-            style={[
-              styles.text,
-              activeCategory === 'Ramen' &&
-                styles.activeText,
-            ]}>
-            Ramen (6)
-          </Text>
-        </Pressable>
+        {loading && categories.length === 0 ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="small" color="#991B1B" />
+          </View>
+        ) : (
+          <ScrollView
+            style={styles.listContainer}
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={false}
+          >
+            {categories.map((cat, index) => {
+              const isLast = index === categories.length - 1;
+              const isActive =
+                activeCategory === cat.name ||
+                (activeCategory === 'Drink' && cat.name === 'Drinks');
+              const itemCount = cat.item_count !== undefined ? ` (${cat.item_count})` : '';
 
-        <Pressable
-          style={styles.item}
-          onPress={() =>
-            onSelectCategory('Sides')
-          }>
-          <Text
-            style={[
-              styles.text,
-              activeCategory === 'Sides' &&
-                styles.activeText,
-            ]}>
-            Sides (4)
-          </Text>
-        </Pressable>
-
-        <Pressable
-          style={styles.item}
-          onPress={() =>
-            onSelectCategory('Drink')
-          }>
-          <Text
-            style={[
-              styles.text,
-              activeCategory === 'Drink' &&
-                styles.activeText,
-            ]}>
-            Drinks (4)
-          </Text>
-        </Pressable>
-
-        <Pressable
-          style={[
-            styles.item,
-            styles.lastItem,
-          ]}
-          onPress={() =>
-            onSelectCategory('Promo')
-          }>
-          <Text
-            style={[
-              styles.text,
-              activeCategory === 'Promo' &&
-                styles.activeText,
-            ]}>
-            Promo (4)
-          </Text>
-        </Pressable>
+              return (
+                <Pressable
+                  key={cat.id || `${cat.name}-${index}`}
+                  style={[styles.item, isLast && styles.lastItem]}
+                  onPress={() => {
+                    onSelectCategory(cat.name);
+                    onClose();
+                  }}
+                >
+                  <Text
+                    style={[
+                      styles.text,
+                      isActive && styles.activeText,
+                    ]}
+                  >
+                    {cat.name}{itemCount}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </ScrollView>
+        )}
 
       </View>
     </View>
@@ -144,39 +153,56 @@ const styles = StyleSheet.create({
 
   modal: {
     width: '100%',
+    maxHeight: '75%',
     backgroundColor: '#FFFFFF',
-    paddingHorizontal: 20,
-    paddingTop: 15,
-    paddingBottom: 20,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
+    paddingHorizontal: 22,
+    paddingTop: 18,
+    paddingBottom: 25,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
   },
 
   header: {
-    height: 45,
+    height: 48,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    marginBottom: 8,
   },
 
   title: {
     fontSize: 18,
-    fontWeight: '600',
-    color: '#171717',
+    fontWeight: '700',
+    color: '#111827',
   },
 
   closeButton: {
-    width: 35,
-    height: 35,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
   },
 
+  loadingContainer: {
+    height: 120,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  listContainer: {
+    width: '100%',
+  },
+
+  scrollContent: {
+    paddingBottom: 15,
+  },
+
   item: {
-    height: 68,
+    height: 56,
     justifyContent: 'center',
     borderBottomWidth: 1,
-    borderBottomColor: '#EEEEEE',
+    borderBottomColor: '#F3F4F6',
   },
 
   lastItem: {
@@ -184,12 +210,13 @@ const styles = StyleSheet.create({
   },
 
   text: {
-    fontSize: 17,
-    color: '#333333',
+    fontSize: 16,
+    color: '#374151',
   },
 
   activeText: {
-    color: '#B91C1C',
+    color: '#991B1B',
+    fontWeight: '600',
   },
 });
 
