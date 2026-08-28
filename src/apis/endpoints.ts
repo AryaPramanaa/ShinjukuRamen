@@ -4,5 +4,6 @@ export const Endpoints = {
   ORDER_LIST_CATEGORY: '/api/v1/order/list-category',
   ORDER_SHOW_MENU: '/api/v1/order/show-menu',
   ORDER_SHOW_ITEM: '/api/v1/order/show-item',
+  ORDER_LIST_PROMOS: '/api/v1/order/list-promos',
   GENERATE_QR: '/api/v1/qr/generate',
 };

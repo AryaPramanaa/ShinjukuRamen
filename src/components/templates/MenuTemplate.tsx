@@ -162,26 +162,51 @@ const MenuTemplate = ({
                         }
                     />
 
-                    <MenuList
-                        title={
-                            activeCategory === 'Drink'
-                                ? 'Drinks'
-                                : activeCategory
-                        }
+                    {activeCategory === 'Promo' ? (
+                        <>
+                            {menus.filter(item => item.category_group === 'Ramen').length > 0 && (
+                                <MenuList
+                                    title="Ramen"
+                                    subtitle={null}
+                                    menus={menus.filter(item => item.category_group === 'Ramen')}
+                                    onAddItem={onAddItem}
+                                    onIncrease={onIncrease}
+                                    onDecrease={onDecrease}
+                                    getQuantity={getQuantity}
+                                />
+                            )}
 
-                        subtitle={
-                            activeCategory === 'Ramen'
-                                ? activeRamenCategory
-                                : null
-                        }
-
-                        menus={menus}
-                        onAddItem={onAddItem}
-                        onIncrease={onIncrease}
-                        onDecrease={onDecrease}
-                        getQuantity={getQuantity}
-
-                    />
+                            {menus.filter(item => item.category_group === 'Drinks').length > 0 && (
+                                <MenuList
+                                    title="Drinks"
+                                    subtitle={null}
+                                    menus={menus.filter(item => item.category_group === 'Drinks')}
+                                    onAddItem={onAddItem}
+                                    onIncrease={onIncrease}
+                                    onDecrease={onDecrease}
+                                    getQuantity={getQuantity}
+                                />
+                            )}
+                        </>
+                    ) : (
+                        <MenuList
+                            title={
+                                activeCategory === 'Drink'
+                                    ? 'Drinks'
+                                    : activeCategory
+                            }
+                            subtitle={
+                                activeCategory === 'Ramen'
+                                    ? activeRamenCategory
+                                    : null
+                            }
+                            menus={menus}
+                            onAddItem={onAddItem}
+                            onIncrease={onIncrease}
+                            onDecrease={onDecrease}
+                            getQuantity={getQuantity}
+                        />
+                    )}
 
                 </ScrollView>
 

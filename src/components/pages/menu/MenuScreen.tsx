@@ -6,6 +6,7 @@ import { getOrderInfoApi, OutletInfo, TableInfoData } from '../../../apis/order'
 import { getCategoriesApi, getShowCategoryApi } from '../../../apis/category';
 import { getShowMenuApi } from '../../../apis/menu';
 import { getShowItemApi } from '../../../apis/item';
+import { getListPromosApi } from '../../../apis/promo';
 
 interface CartItem {
   id: number | string;
@@ -19,6 +20,7 @@ interface CartItem {
 
 const DEFAULT_CATEGORY_MAP: Record<string, string> = {
   'Ramen': 'cmlqs8n6i006qkgttdn8i3ewn',
+  'Promo': 'promo-category-id',
   'Rice Dishes (Donburi)': 'cmlqs8n6i006rkgtta4670c6z',
   'Donburi': 'cmlqs8n6i006rkgtta4670c6z',
   'Drinks': 'cmlqs8n6i006tkgtt7rv4048f',
@@ -105,6 +107,73 @@ const MenuScreen = () => {
   // Fetch live menu items based on activeCategory and searchText
   useEffect(() => {
     const fetchLiveMenu = async () => {
+      if (activeCategory === 'Promo') {
+        try {
+          const promoRes = await getListPromosApi({ outlet_id: 'cmlqs8mip0000kgtt14z7csfb' });
+          const ramenRes = await getShowMenuApi({ outlet_id: 'cmlqs8mip0000kgtt14z7csfb', category_id: categoryMap['Ramen'] || 'cmlqs8n6i006qkgttdn8i3ewn' });
+          const drinkRes = await getShowMenuApi({ outlet_id: 'cmlqs8mip0000kgtt14z7csfb', category_id: categoryMap['Drinks'] || 'cmlqs8n6i006tkgtt7rv4048f' });
+
+          const promoItems: any[] = [];
+          const seenIds = new Set<string>();
+
+          if (ramenRes?.success && Array.isArray(ramenRes?.data)) {
+            ramenRes.data.forEach(catGroup => {
+              if (Array.isArray(catGroup.sub_categories)) {
+                catGroup.sub_categories.forEach(sub => {
+                  if (Array.isArray(sub.items)) {
+                    sub.items.forEach(item => {
+                      if (!seenIds.has(String(item.id))) {
+                        seenIds.add(String(item.id));
+                        promoItems.push({
+                          id: item.id,
+                          uniqueKey: `promo-${item.id}`,
+                          name: `[PROMO] ${item.name}`,
+                          price: typeof item.price === 'string' ? parseFloat(item.price) : item.price,
+                          image: item.image || 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=500',
+                          description: promoRes?.data?.[0]?.name ? `${promoRes.data[0].name}` : 'Special Deal Promo',
+                          category_group: 'Ramen',
+                        });
+                      }
+                    });
+                  }
+                });
+              }
+            });
+          }
+
+          if (drinkRes?.success && Array.isArray(drinkRes?.data)) {
+            drinkRes.data.forEach(catGroup => {
+              if (Array.isArray(catGroup.sub_categories)) {
+                catGroup.sub_categories.forEach(sub => {
+                  if (Array.isArray(sub.items)) {
+                    sub.items.forEach(item => {
+                      if (!seenIds.has(String(item.id))) {
+                        seenIds.add(String(item.id));
+                        promoItems.push({
+                          id: item.id,
+                          uniqueKey: `promo-${item.id}`,
+                          name: `[PROMO] ${item.name}`,
+                          price: typeof item.price === 'string' ? parseFloat(item.price) : item.price,
+                          image: item.image || 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=500',
+                          description: promoRes?.data?.[0]?.name ? `${promoRes.data[0].name}` : 'Special Deal Promo',
+                          category_group: 'Drinks',
+                        });
+                      }
+                    });
+                  }
+                });
+              }
+            });
+          }
+
+          setApiMenus(promoItems);
+        } catch (error) {
+          console.log('Error fetching list-promos:', error);
+          setApiMenus([]);
+        }
+        return;
+      }
+
       const catId = categoryMap[activeCategory] || categoryMap['Ramen'] || 'cmlqs8n6i006qkgttdn8i3ewn';
       try {
         const response = await getShowMenuApi({
