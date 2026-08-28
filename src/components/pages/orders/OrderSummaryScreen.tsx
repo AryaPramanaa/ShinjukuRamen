@@ -2,12 +2,39 @@ import React, { useState, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { useApp } from '../../../context/AppContext';
 import OrderSummary from '../../organisms/OrderSummary';
-import { calculateOrderApi, CalculateOrderData } from '../../../apis/order';
+import { calculateOrderApi, CalculateOrderData, getShowCheckoutApi, ShowCheckoutData } from '../../../apis/order';
 
 const OrderSummaryScreen = () => {
   const navigation = useNavigation();
   const { cart, setCart } = useApp();
   const [calculationData, setCalculationData] = useState<CalculateOrderData | undefined>(undefined);
+  const [checkoutInfo, setCheckoutInfo] = useState<ShowCheckoutData>({
+    order_type: 'Dine In',
+    table: 'T1',
+  });
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchCheckoutInfo = async () => {
+      try {
+        const response = await getShowCheckoutApi({
+          outlet_id: 'cmlqs8mip0000kgtt14z7csfb',
+          table_id: 'cmlqs8naj008skgtthxor0re6',
+        });
+        if (isMounted && response?.success && response?.data) {
+          setCheckoutInfo(response.data);
+        }
+      } catch (error) {
+        console.log('Error in getShowCheckoutApi:', error);
+      }
+    };
+
+    fetchCheckoutInfo();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
@@ -87,6 +114,8 @@ const OrderSummaryScreen = () => {
     <OrderSummary
       cart={cart}
       totalPrice={calculatedTotal}
+      orderType={checkoutInfo.order_type}
+      tableNumber={checkoutInfo.table}
       onBack={() => navigation.goBack()}
       onIncrease={handleIncrease}
       onDecrease={handleDecrease}

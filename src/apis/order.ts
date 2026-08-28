@@ -79,6 +79,23 @@ export interface CalculateOrderResponse {
   data: CalculateOrderData;
 }
 
+export interface ShowCheckoutParams {
+  outlet_id?: string;
+  table_id?: string;
+}
+
+export interface ShowCheckoutData {
+  order_type: string;
+  table: string;
+}
+
+export interface ShowCheckoutResponse {
+  success: boolean;
+  message: string;
+  metadata?: Record<string, any>;
+  data: ShowCheckoutData;
+}
+
 const ORDER_API_BASE_URL = 'https://terminalone-pos-staging-api-user.rapitech.id';
 
 /**
@@ -123,6 +140,24 @@ export const calculateOrderApi = async (
       baseUrl: ORDER_API_BASE_URL,
     }
   );
+
+  return response.data;
+};
+
+/**
+ * Fetches order_type and table info for the checkout screen.
+ * Endpoint: GET /api/v1/order/show-checkout?outlet_id=...&table_id=...
+ */
+export const getShowCheckoutApi = async (
+  params: ShowCheckoutParams = {}
+): Promise<ShowCheckoutResponse> => {
+  const response = await http.get<ShowCheckoutResponse>(Endpoints.ORDER_SHOW_CHECKOUT, {
+    baseUrl: ORDER_API_BASE_URL,
+    params: {
+      outlet_id: params.outlet_id ?? 'cmlqs8mip0000kgtt14z7csfb',
+      table_id: params.table_id ?? 'cmlqs8naj008skgtthxor0re6',
+    },
+  });
 
   return response.data;
 };

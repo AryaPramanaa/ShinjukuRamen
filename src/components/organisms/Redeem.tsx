@@ -25,10 +25,15 @@ import PromoReminderModal from '../molecules/PromoReminderModal';
 
 interface RedeemProps {
   totalPrice: number;
+  orderType?: string;
+  tableNumber?: string;
   onBack: () => void;
   onPay: (paymentMethod: string, provider: string | null, customerInfo: any, simulateFailure: boolean) => void;
   onViewTier: () => void;
   onClaimRewards: () => void;
+  onHistoryPress?: () => void;
+  onRemoveBirthdayDiscount?: () => void;
+  isBirthdayActive?: boolean;
 }
 
 const GreenCakeIcon = () => (
@@ -49,6 +54,8 @@ const GreenCakeIcon = () => (
 
 const Redeem = ({
   totalPrice,
+  orderType = 'Dine In',
+  tableNumber = 'T1',
   onBack,
   onPay,
   onViewTier,
@@ -143,11 +150,11 @@ const Redeem = ({
         <View style={styles.tableInfoContainer}>
           <View style={styles.tableInfoRow}>
             <Text style={styles.tableInfoLabel}>Order Type</Text>
-            <Text style={styles.tableInfoValue}>Dine In</Text>
+            <Text style={styles.tableInfoValue}>{orderType}</Text>
           </View>
           <View style={styles.tableInfoRow}>
             <Text style={styles.tableInfoLabel}>Table</Text>
-            <Text style={styles.tableInfoValue}>A2</Text>
+            <Text style={styles.tableInfoValue}>{tableNumber}</Text>
           </View>
         </View>
 

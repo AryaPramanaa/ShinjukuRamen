@@ -14,6 +14,8 @@ import OrderSummaryItem from '../molecules/OrderSummaryItem';
 interface OrderSummaryProps {
   cart: any[];
   totalPrice: number;
+  orderType?: string;
+  tableNumber?: string;
 
   onBack: () => void;
   onIncrease: (cartItemIdOrId: any) => void;
@@ -25,6 +27,8 @@ interface OrderSummaryProps {
 const OrderSummary = ({
   cart,
   totalPrice,
+  orderType = 'Dine In',
+  tableNumber = 'T1',
   onBack,
   onIncrease,
   onDecrease,
@@ -56,7 +60,7 @@ const OrderSummary = ({
       >
 
         {/* ORDER INFO */}
-        <OrderInfo orderType="Dine In" tableNumber="A2" />
+        <OrderInfo orderType={orderType} tableNumber={tableNumber} />
 
         {/* ORDERED ITEMS */}
         <View style={styles.itemsHeader}>

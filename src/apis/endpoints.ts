@@ -6,6 +6,6 @@ export const Endpoints = {
   ORDER_SHOW_ITEM: '/api/v1/order/show-item',
   ORDER_LIST_PROMOS: '/api/v1/order/list-promos',
   ORDER_CALCULATE: '/api/v1/order/calculate',
+  ORDER_SHOW_CHECKOUT: '/api/v1/order/show-checkout',
   GENERATE_QR: '/api/v1/qr/generate',
 };
-  
